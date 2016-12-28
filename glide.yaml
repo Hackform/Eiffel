@@ -2,3 +2,4 @@ package: github.com/Hackform/Eiffel
 import:
 - package: github.com/labstack/echo
   version: ^3.0.3
+- package: github.com/lib/pq

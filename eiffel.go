@@ -6,13 +6,15 @@ import (
 
 type (
 	Eiffel struct {
-		server *echo.Echo
+		services ServiceConfig
+		server   *echo.Echo
 	}
 )
 
 func New() *Eiffel {
 	return &Eiffel{
-		server: echo.New(),
+		services: ServiceConfig{},
+		server:   echo.New(),
 	}
 }
 

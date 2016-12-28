@@ -1,5 +1,5 @@
-hash: 1ef9067e881f991667f1c43d701ecf10d29689d81f9918cd351dde233207874a
-updated: 2016-12-27T20:41:31.53714975-08:00
+hash: 5faa482dd87a4defaa50f2af183872e15cdd987c610dd5e6357dbe13836997be
+updated: 2016-12-27T23:29:08.811984573-08:00
 imports:
 - name: github.com/labstack/echo
   version: 8d504c1b699c757b267255c53b3e5219f9974abc
@@ -8,6 +8,8 @@ imports:
   subpackages:
   - color
   - log
+- name: github.com/lib/pq
+  version: 5bf161122cd640c2a5a2c1d7fa49ea9befff31dd
 - name: github.com/mattn/go-colorable
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
