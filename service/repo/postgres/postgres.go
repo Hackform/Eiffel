@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"database/sql"
-	"github.com/Hackform/Eiffel/service/repo"
+	"fmt"
 	_ "github.com/lib/pq"
 	"strings"
 )
@@ -31,7 +31,6 @@ type (
 	ConnectionString map[string]string
 
 	Postgres struct {
-		repo.RepoBase
 		dcn ConnectionString
 		db  *sql.DB
 	}
@@ -53,15 +52,16 @@ func New(s ConnectionString) *Postgres {
 	}
 }
 
-func (p *Postgres) Connect() bool {
+func (p *Postgres) Start() bool {
 	db, err := sql.Open(driverName, p.dcn.stringify())
 	if err != nil {
+		fmt.Println(err.Error())
 		return false
 	}
 	p.db = db
 	return true
 }
 
-func (p *Postgres) Disconnect() {
+func (p *Postgres) Shutdown() {
 	p.db.Close()
 }

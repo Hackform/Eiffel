@@ -11,11 +11,11 @@ func main() {
 	e.InitService(eiffel.ServiceConfig{
 		"repo": postgres.New(postgres.ConnectionString{
 			"dbname":                    "hackform",
-			"user":                      "",
-			"password":                  "",
+			"user":                      "eiffel",
+			"password":                  "tower",
 			"host":                      "localhost",
 			"port":                      "5432",
-			"connect_timeout":           "8",
+			"connect_timeout":           "16",
 			"fallback_application_name": "eiffel",
 			"sslmode":                   "disable",
 		}),
