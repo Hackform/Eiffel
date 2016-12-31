@@ -4,6 +4,7 @@ import (
 	"github.com/Hackform/Eiffel"
 	userRoute "github.com/Hackform/Eiffel/route/users"
 	"github.com/Hackform/Eiffel/service/repo/postgres"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -20,8 +21,13 @@ func main() {
 			"sslmode":                   "disable",
 		}),
 	})
-	e.InitRoute("/api", eiffel.RouteConfig{
-		"/users": userRoute.New(),
-	})
+	e.InitRoute(
+		"/api",
+		eiffel.RouteConfig{
+			"/users": userRoute.New(),
+		},
+		middleware.Recover(),
+		middleware.Logger(),
+	)
 	e.Start(":8080")
 }

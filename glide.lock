@@ -1,15 +1,23 @@
 hash: 5faa482dd87a4defaa50f2af183872e15cdd987c610dd5e6357dbe13836997be
-updated: 2016-12-27T23:29:08.811984573-08:00
+updated: 2016-12-30T15:54:38.092677075-08:00
 imports:
+- name: github.com/dgrijalva/jwt-go
+  version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/labstack/echo
   version: 8d504c1b699c757b267255c53b3e5219f9974abc
-- name: github.com/labstack/gommon
-  version: b2765095a572012ea4828c9596fefd824c2aee72
   subpackages:
+  - middleware
+- name: github.com/labstack/gommon
+  version: c8c07aa087422c146b86d2f79556b450a8e630a1
+  subpackages:
+  - bytes
   - color
   - log
+  - random
 - name: github.com/lib/pq
   version: 5bf161122cd640c2a5a2c1d7fa49ea9befff31dd
+  subpackages:
+  - oid
 - name: github.com/mattn/go-colorable
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
@@ -24,7 +32,7 @@ imports:
   - acme
   - acme/autocert
 - name: golang.org/x/net
-  version: 45e771701b814666a7eb299e6c7a57d0b1799e91
+  version: 8fd7f25955530b92e73e9e1932a41b522b22ccd9
   subpackages:
   - context
   - context/ctxhttp
