@@ -88,3 +88,46 @@ func (e *Eiffel) Shutdown() {
 		e.services[i].Shutdown()
 	}
 }
+
+///////////////
+// Services  //
+///////////////
+
+type (
+	Service interface {
+		Start() bool
+		Shutdown()
+	}
+
+	ServiceConfig map[string]Service
+)
+
+func (e *Eiffel) InitService(s ServiceConfig) {
+	for k, v := range s {
+		e.serviceList = append(e.serviceList, k)
+		e.services[k] = v
+	}
+}
+
+////////////
+// Routes //
+////////////
+
+type (
+	Route interface {
+		Register(g *echo.Group)
+	}
+
+	RouteConfig map[string]Route
+)
+
+func (e *Eiffel) InitRoute(prefix string, r RouteConfig, m ...echo.MiddlewareFunc) {
+	group := e.server.Group(prefix)
+	for _, m := range m {
+		group.Use(m)
+	}
+	for k, v := range r {
+		g := group.Group(k)
+		v.Register(g)
+	}
+}

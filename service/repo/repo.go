@@ -1,14 +1,18 @@
 package repo
 
+import (
+	"github.com/Hackform/Eiffel/service/repo/bound"
+)
+
 type (
 	Data struct {
 		Value interface{}
 	}
 
 	Tx interface {
-		Query() []*Data
-		QueryOne() *Data
-		Exec() error
+		Query(bound.Bound) []*Data
+		QueryOne(bound.Bound) *Data
+		Exec(bound.Bound) error
 		Commit() error
 		Rollback() error
 	}
