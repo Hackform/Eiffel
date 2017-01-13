@@ -1,27 +1,47 @@
-package bound
+package q
 
-///////////
-// Bound //
-///////////
+/////////////
+// Actions //
+/////////////
+
+const (
+	ACTION_QUERY_ALL = iota
+	ACTION_QUERY_ONE
+)
+
+////////////////
+// Conditions //
+////////////////
+
+const (
+	EQUAL = iota
+	UNEQUAL
+	AND
+	OR
+)
+
+///////
+// Q //
+///////
 
 type (
-	Bound struct {
+	Q struct {
 		Action int
 		Sector string
-		Vals   Values
+		RProps Props
 		Cons   Constraints
 	}
 
-	Values []string
+	Props []string
 
-	Constraints []Constraint
+	Constraints []*Constraint
 )
 
-func New(action int, sector, key string, vals Values, cons Constraints) Bound {
-	return Bound{
+func New(action int, sector string, props Props, cons Constraints) Q {
+	return Q{
 		Action: action,
 		Sector: sector,
-		Vals:   vals,
+		RProps: props,
 		Cons:   cons,
 	}
 }

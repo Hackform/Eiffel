@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"github.com/Hackform/Eiffel/service/repo/bound"
+	"github.com/Hackform/Eiffel/service/repo/q"
 )
 
 type (
@@ -13,7 +13,7 @@ type (
 
 	Tx interface {
 		EscapeSequence() string
-		Statement(bound.Bound) (Stmt, error)
+		Statement(q.Q) (Stmt, error)
 		Commit() error
 		Rollback() error
 	}

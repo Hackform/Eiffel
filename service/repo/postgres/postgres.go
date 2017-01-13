@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"github.com/Hackform/Eiffel/service/kappa"
 	"github.com/Hackform/Eiffel/service/repo"
-	"github.com/Hackform/Eiffel/service/repo/action"
-	"github.com/Hackform/Eiffel/service/repo/bound"
+	"github.com/Hackform/Eiffel/service/repo/q"
 	_ "github.com/lib/pq"
 	"strconv"
 )
@@ -114,7 +113,7 @@ func (t *tx) EscapeSequence() string {
 	return arg_escape
 }
 
-func (t *tx) Statement(bound.Bound) (repo.Stmt, error) {
+func (t *tx) Statement(q.Q) (repo.Stmt, error) {
 	return nil, nil
 }
 
@@ -126,13 +125,13 @@ func (t *tx) Rollback() error {
 	return nil
 }
 
-func parseBound(escape_sequence string, b bound.Bound) string {
+func parseQ(escape_sequence string, b q.Q) string {
 	query := bytes.Buffer{}
 	switch b.Action {
-	case action.QUERY_ONE:
+	case q.ACTION_QUERY_ONE:
 		query.WriteString("select ")
-		l := len(b.Vals) - 1
-		for n, i := range b.Vals {
+		l := len(b.RProps) - 1
+		for n, i := range b.RProps {
 			query.WriteString(i)
 			if n < l {
 				query.WriteString(", ")
@@ -148,13 +147,13 @@ func parseBound(escape_sequence string, b bound.Bound) string {
 	return query.String()
 }
 
-func parseConstraints(escape_sequence string, cons bound.Constraints) string {
+func parseConstraints(escape_sequence string, cons q.Constraints) string {
 	k := kappa.New()
 	l := len(cons) - 1
 	clause := bytes.Buffer{}
 	for n, i := range cons {
 		switch i.Condition {
-		case action.EQUAL:
+		case q.EQUAL:
 			clause.WriteString(i.Key + " = ")
 			if i.Value == escape_sequence {
 				clause.WriteString(escape_sequence + strconv.Itoa(k.Get()))
