@@ -63,10 +63,17 @@ func Test_parseConstraints(t *testing.T) {
 	qc := q.Constraints{a}
 	assert.Equal("key_1 = value_1", parseConstraints("$", qc), "parseConstraints should properly render q_EQUAL")
 
+	a.Condition = q.UNEQUAL
+	assert.Equal("key_1 <> value_1", parseConstraints("$", qc), "parseConstraints should properly render q_UNEQUAL")
+
 	b := q.NewCon("key_2", q.EQUAL, "$")
 	qc = q.Constraints{b}
 	assert.Equal("key_2 = $1", parseConstraints("$", qc), "parseConstraints should properly substitute escape_sequence")
 
 	qc = q.Constraints{a, b}
-	assert.Equal("key_1 = value_1 and key_2 = $1", parseConstraints("$", qc), "parseConstraints should by default adjoin multiple constraints with 'and'")
+	assert.Equal("key_1 <> value_1 AND key_2 = $1", parseConstraints("$", qc), "parseConstraints should by default adjoin multiple constraints with 'AND'")
+
+	c := q.NewOp(a, q.OR, b)
+	qc = q.Constraints{c}
+	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints("$", qc), "parseConstraints should properly render q_OR")
 }

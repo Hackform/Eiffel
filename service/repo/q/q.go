@@ -16,6 +16,10 @@ const (
 const (
 	EQUAL = iota
 	UNEQUAL
+	GREATER
+	LESSER
+	GREATER_EQ
+	LESSER_EQ
 	AND
 	OR
 )

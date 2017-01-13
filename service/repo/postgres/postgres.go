@@ -130,7 +130,7 @@ func parseQ(escape_sequence string, b q.Q) string {
 	query := bytes.Buffer{}
 	switch b.Action {
 	case q.ACTION_QUERY_ONE:
-		query.WriteString("select ")
+		query.WriteString("SELECT ")
 		l := len(b.RProps) - 1
 		for n, i := range b.RProps {
 			query.WriteString(i)
@@ -138,9 +138,9 @@ func parseQ(escape_sequence string, b q.Q) string {
 				query.WriteString(", ")
 			}
 		}
-		query.WriteString(" from " + b.Sector)
+		query.WriteString(" FROM " + b.Sector)
 		if len(b.Cons) > 0 {
-			query.WriteString(" where ")
+			query.WriteString(" WHERE ")
 			query.WriteString(parseConstraints(escape_sequence, b.Cons))
 		}
 		query.WriteString(";")
@@ -153,17 +153,41 @@ func parseConstraints(escape_sequence string, cons q.Constraints) string {
 	l := len(cons) - 1
 	clause := bytes.Buffer{}
 	for n, i := range cons {
-		switch i.Condition {
+		c := i.Condition
+		if c != q.AND && c != q.OR {
+			clause.WriteString(i.Key)
+		}
+
+		switch c {
 		case q.EQUAL:
-			clause.WriteString(i.Key + " = ")
+			clause.WriteString(" = ")
+		case q.UNEQUAL:
+			clause.WriteString(" <> ")
+		case q.GREATER:
+			clause.WriteString(" > ")
+		case q.LESSER:
+			clause.WriteString(" < ")
+		case q.GREATER_EQ:
+			clause.WriteString(" >= ")
+		case q.LESSER_EQ:
+			clause.WriteString(" <= ")
+
+		case q.AND:
+			clause.WriteString("(" + parseConstraints(escape_sequence, q.Constraints{i.Con1}) + " AND " + parseConstraints(escape_sequence, q.Constraints{i.Con2}) + ")")
+		case q.OR:
+			clause.WriteString("(" + parseConstraints(escape_sequence, q.Constraints{i.Con1}) + " OR " + parseConstraints(escape_sequence, q.Constraints{i.Con2}) + ")")
+		}
+
+		if c != q.AND && c != q.OR {
 			if i.Value == escape_sequence {
 				clause.WriteString(escape_sequence + strconv.Itoa(k.Get()))
 			} else {
 				clause.WriteString(i.Value)
 			}
 		}
+
 		if n < l {
-			clause.WriteString(" and ")
+			clause.WriteString(" AND ")
 		}
 	}
 	return clause.String()
