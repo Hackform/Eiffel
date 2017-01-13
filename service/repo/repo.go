@@ -5,21 +5,26 @@ import (
 )
 
 type (
-	Data struct {
-		Value interface{}
+	Repo interface {
+		Start() bool
+		Shutdown()
+		Transaction() (Tx, error)
 	}
 
 	Tx interface {
-		Query(bound.Bound) []*Data
-		QueryOne(bound.Bound) *Data
-		Exec(bound.Bound) error
+		EscapeSequence() string
+		Statement(bound.Bound) (Stmt, error)
 		Commit() error
 		Rollback() error
 	}
 
-	Repo interface {
-		Start() bool
-		Shutdown()
-		Transaction() Tx
+	Stmt interface {
+		Query(args ...interface{}) ([]*Data, error)
+		QueryOne(args ...interface{}) (*Data, error)
+		Exec(args ...interface{}) error
+	}
+
+	Data struct {
+		Value interface{}
 	}
 )

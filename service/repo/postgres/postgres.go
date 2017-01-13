@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"github.com/Hackform/Eiffel/service/kappa"
 	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/Hackform/Eiffel/service/repo/action"
 	"github.com/Hackform/Eiffel/service/repo/bound"
 	_ "github.com/lib/pq"
+	"strconv"
 )
 
 const (
 	driverName = "postgres"
+	arg_escape = "$"
 )
 
 ///////////////////////
@@ -83,12 +86,12 @@ func (p *Postgres) Shutdown() {
 	p.db.Close()
 }
 
-func (p *Postgres) Transaction() repo.Tx {
+func (p *Postgres) Transaction() (repo.Tx, error) {
 	t, err := p.db.Begin()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return newTx(t)
+	return newTx(t), nil
 }
 
 /////////////////
@@ -99,10 +102,6 @@ type (
 	tx struct {
 		t *sql.Tx
 	}
-
-	stmt struct {
-		s *sql.Stmt
-	}
 )
 
 func newTx(t *sql.Tx) *tx {
@@ -111,15 +110,24 @@ func newTx(t *sql.Tx) *tx {
 	}
 }
 
-func newStmt(s *sql.Stmt) *stmt {
-	return &stmt{
-		s: s,
-	}
+func (t *tx) EscapeSequence() string {
+	return arg_escape
 }
 
-func parseBound(t *sql.Tx, b bound.Bound) (*stmt, []interface{}) {
+func (t *tx) Statement(bound.Bound) (repo.Stmt, error) {
+	return nil, nil
+}
+
+func (t *tx) Commit() error {
+	return nil
+}
+
+func (t *tx) Rollback() error {
+	return nil
+}
+
+func parseBound(escape_sequence string, b bound.Bound) string {
 	query := bytes.Buffer{}
-	args := []interface{}{}
 	switch b.Action {
 	case action.QUERY_ONE:
 		query.WriteString("select ")
@@ -131,31 +139,60 @@ func parseBound(t *sql.Tx, b bound.Bound) (*stmt, []interface{}) {
 			}
 		}
 		query.WriteString(" from " + b.Sector)
+		if len(b.Cons) > 0 {
+			query.WriteString(" where ")
+			query.WriteString(parseConstraints(escape_sequence, b.Cons))
+		}
 		query.WriteString(";")
 	}
-	stmt, err := t.Prepare(query.String())
-	if err != nil {
-		return nil, []interface{}{}
+	return query.String()
+}
+
+func parseConstraints(escape_sequence string, cons bound.Constraints) string {
+	k := kappa.New()
+	l := len(cons) - 1
+	clause := bytes.Buffer{}
+	for n, i := range cons {
+		switch i.Condition {
+		case action.EQUAL:
+			clause.WriteString(i.Key + " = ")
+			if i.Value == escape_sequence {
+				clause.WriteString(escape_sequence + strconv.Itoa(k.Get()))
+			} else {
+				clause.WriteString(i.Value)
+			}
+			if n < l {
+				clause.WriteString(" AND ")
+			}
+		}
 	}
-	return newStmt(stmt), args
+	return clause.String()
 }
 
-func (t *tx) Query(b bound.Bound) []*repo.Data {
+///////////////
+// Statement //
+///////////////
+
+type (
+	stmt struct {
+		s *sql.Stmt
+	}
+)
+
+func newStmt(s *sql.Stmt) *stmt {
+	return &stmt{
+		s: s,
+	}
+}
+
+func (s *stmt) Query(args ...interface{}) []*repo.Data {
 	return nil
 }
 
-func (t *tx) QueryOne(b bound.Bound) *repo.Data {
+func (s *stmt) QueryOne(args ...interface{}) *repo.Data {
 	return nil
 }
 
-func (t *tx) Exec(b bound.Bound) error {
-	return nil
-}
-
-func (t *tx) Commit() error {
-	return nil
-}
-
-func (t *tx) Rollback() error {
+func (s *stmt) Exec(args ...interface{}) error {
 	return nil
 }
