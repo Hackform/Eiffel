@@ -59,7 +59,7 @@ type (
 	}
 )
 
-func NewConstraint(key string, condition int, value string) *Constraint {
+func NewCon(key string, condition int, value string) *Constraint {
 	return &Constraint{
 		Key:       key,
 		Condition: condition,
@@ -67,7 +67,7 @@ func NewConstraint(key string, condition int, value string) *Constraint {
 	}
 }
 
-func NewOperator(condition int, con1, con2 *Constraint) *Constraint {
+func NewOp(con1 *Constraint, condition int, con2 *Constraint) *Constraint {
 	return &Constraint{
 		Condition: condition,
 		Con1:      con1,
