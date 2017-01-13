@@ -1,5 +1,5 @@
-hash: 5faa482dd87a4defaa50f2af183872e15cdd987c610dd5e6357dbe13836997be
-updated: 2017-01-11T20:50:00.260653344-08:00
+hash: 451bb0022d35e836c654d2dfb64d4f913b2d127b902479af7d7cd8fcae504517
+updated: 2017-01-12T16:54:36.892802732-08:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
@@ -22,6 +22,10 @@ imports:
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
+- name: github.com/stretchr/testify
+  version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
+  subpackages:
+  - assert
 - name: github.com/tylerb/graceful
   version: 4df1190835320af7076dfcf27b3d071fd3612caf
 - name: github.com/valyala/fasttemplate
@@ -40,4 +44,12 @@ imports:
   version: d5645953809d8b4752afb2c3224b1f1ad73dfa70
   subpackages:
   - unix
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib

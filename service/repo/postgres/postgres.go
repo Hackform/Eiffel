@@ -161,9 +161,9 @@ func parseConstraints(escape_sequence string, cons bound.Constraints) string {
 			} else {
 				clause.WriteString(i.Value)
 			}
-			if n < l {
-				clause.WriteString(" AND ")
-			}
+		}
+		if n < l {
+			clause.WriteString(" and ")
 		}
 	}
 	return clause.String()
@@ -185,12 +185,12 @@ func newStmt(s *sql.Stmt) *stmt {
 	}
 }
 
-func (s *stmt) Query(args ...interface{}) []*repo.Data {
-	return nil
+func (s *stmt) Query(args ...interface{}) ([]*repo.Data, error) {
+	return nil, nil
 }
 
-func (s *stmt) QueryOne(args ...interface{}) *repo.Data {
-	return nil
+func (s *stmt) QueryOne(args ...interface{}) (*repo.Data, error) {
+	return nil, nil
 }
 
 func (s *stmt) Exec(args ...interface{}) error {
