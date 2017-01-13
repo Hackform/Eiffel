@@ -9,6 +9,7 @@ import (
 	"github.com/Hackform/Eiffel/service/repo/q"
 	_ "github.com/lib/pq"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -40,12 +41,6 @@ type (
 	ConnectionString map[string]string
 )
 
-func New(s ConnectionString) *Postgres {
-	return &Postgres{
-		dcn: s,
-	}
-}
-
 func (s *ConnectionString) stringify() string {
 	k := bytes.Buffer{}
 	l := len(connectionArgs) - 1
@@ -57,7 +52,7 @@ func (s *ConnectionString) stringify() string {
 			}
 		}
 	}
-	return k.String()
+	return strings.TrimSpace(k.String())
 }
 
 //////////////
@@ -70,6 +65,12 @@ type (
 		db  *sql.DB
 	}
 )
+
+func New(s ConnectionString) *Postgres {
+	return &Postgres{
+		dcn: s,
+	}
+}
 
 func (p *Postgres) Start() bool {
 	db, err := sql.Open(driverName, p.dcn.stringify())
