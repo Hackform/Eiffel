@@ -43,13 +43,9 @@ type (
 
 func (s *ConnectionString) stringify() string {
 	k := bytes.Buffer{}
-	l := len(connectionArgs) - 1
-	for n, i := range connectionArgs {
+	for _, i := range connectionArgs {
 		if val, ok := (*s)[i]; ok {
-			k.WriteString(i + "=" + val)
-			if n < l {
-				k.WriteString(" ")
-			}
+			k.WriteString(i + "=" + val + " ")
 		}
 	}
 	return strings.TrimSpace(k.String())
@@ -126,22 +122,22 @@ func (t *tx) Rollback() error {
 	return nil
 }
 
-func parseQ(escape_sequence string, b q.Q) string {
+func parseQ(escape_sequence string, qu q.Q) string {
 	query := bytes.Buffer{}
-	switch b.Action {
+	switch qu.Action {
 	case q.ACTION_QUERY_ONE:
 		query.WriteString("SELECT ")
-		l := len(b.RProps) - 1
-		for n, i := range b.RProps {
+		l := len(qu.RProps) - 1
+		for n, i := range qu.RProps {
 			query.WriteString(i)
 			if n < l {
 				query.WriteString(", ")
 			}
 		}
-		query.WriteString(" FROM " + b.Sector)
-		if len(b.Cons) > 0 {
+		query.WriteString(" FROM " + qu.Sector + " LIMIT 1")
+		if qu.Cons != nil {
 			query.WriteString(" WHERE ")
-			query.WriteString(parseConstraints(escape_sequence, b.Cons))
+			query.WriteString(parseConstraints(escape_sequence, qu.Cons))
 		}
 		query.WriteString(";")
 	}

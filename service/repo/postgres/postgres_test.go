@@ -77,3 +77,13 @@ func Test_parseConstraints(t *testing.T) {
 	qc = q.Constraints{c}
 	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints("$", qc), "parseConstraints should properly render q_OR")
 }
+
+func Test_parseQ(t *testing.T) {
+	assert := assert.New(t)
+	query := q.New(q.ACTION_QUERY_ONE, "test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil)
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 1;", parseQ("$", query), "parseQ should properly render q_ACTION_QUERY_ONE")
+
+	qc := q.Constraints{q.NewCon("key_1", q.EQUAL, "value_1")}
+	query = q.New(q.ACTION_QUERY_ONE, "test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc)
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 1 WHERE key_1 = value_1;", parseQ("$", query), "parseQ should properly render constraints")
+}
