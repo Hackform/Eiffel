@@ -136,3 +136,18 @@ func Test_parseQ_Update(t *testing.T) {
 	query = q.NewU("test_sector", qv, qc)
 	assert.Equal("UPDATE test_sector SET key_1 = $1, key_2 = $2 WHERE key_3 = $3;", parseQ(query), "parseQ should properly render update with constraints")
 }
+
+func Test_parseQ_Delete(t *testing.T) {
+	assert := assert.New(t)
+	qc := q.Constraints{q.NewCon("key_2", q.EQUAL, "value_2")}
+
+	query := q.NewD("test_sector", nil)
+	assert.Equal("DELETE FROM test_sector;", parseQ(query), "parseQ should properly render delete")
+
+	query = q.NewD("test_sector", qc)
+	assert.Equal("DELETE FROM test_sector WHERE key_2 = value_2;", parseQ(query), "parseQ should properly render delete with a condition")
+
+	qc = q.Constraints{q.NewEq("key_1", "$"), q.NewEq("key_2", "$")}
+	query = q.NewD("test_sector", qc)
+	assert.Equal("DELETE FROM test_sector WHERE key_1 = $1 AND key_2 = $2;", parseQ(query), "parseQ should properly render delete with arg conditions")
+}

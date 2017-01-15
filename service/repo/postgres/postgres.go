@@ -191,6 +191,18 @@ func parseUpdate(qu q.Q) string {
 	return query.String()
 }
 
+func parseDelete(qu q.Q) string {
+	query := bytes.Buffer{}
+	query.WriteString("DELETE FROM " + qu.Sector)
+	if qu.Cons != nil {
+		k := kappa.New()
+		query.WriteString(" WHERE ")
+		query.WriteString(parseConstraints(qu.Cons, k))
+	}
+	query.WriteString(";")
+	return query.String()
+}
+
 func parseQ(qu q.Q) string {
 	switch qu.Action {
 	case q.ACTION_QUERY_ONE, q.ACTION_QUERY_MULTI:
@@ -199,6 +211,8 @@ func parseQ(qu q.Q) string {
 		return parseInsert(qu)
 	case q.ACTION_UPDATE:
 		return parseUpdate(qu)
+	case q.ACTION_DELETE:
+		return parseDelete(qu)
 	}
 	return ""
 }
