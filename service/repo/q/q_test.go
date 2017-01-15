@@ -16,12 +16,13 @@ func Test_Q_NewQOne(t *testing.T) {
 
 func Test_Q_NewQMulti(t *testing.T) {
 	assert := assert.New(t)
-	query := NewQMulti("test_sector", Props{"prop_1", "prop_2", "another_prop"}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")}, 5)
+	query := NewQMulti("test_sector", Props{"prop_1", "prop_2", "another_prop"}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")}, 5, 3)
 	assert.Equal(ACTION_QUERY_MULTI, query.Action, "property Action should be instantiated")
 	assert.Equal("test_sector", query.Sector, "property Sector should be instantiated")
 	assert.Equal(3, len(query.RProps), "property RProps should be instantiated")
 	assert.Equal(2, len(query.Cons), "property Cons should be instantiated")
 	assert.Equal(5, query.Limit, "property Limit should be instantiated")
+	assert.Equal(3, query.Offset, "property Offset should be instantiated")
 }
 
 func Test_Q_NewI(t *testing.T) {

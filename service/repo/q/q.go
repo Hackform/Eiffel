@@ -5,8 +5,8 @@ package q
 /////////////
 
 const (
-	ACTION_QUERY_MULTI = iota
-	ACTION_QUERY_ONE
+	ACTION_QUERY_ONE = iota
+	ACTION_QUERY_MULTI
 	ACTION_INSERT
 	ACTION_UPDATE
 	ACTION_CREATE_TABLE
@@ -33,13 +33,13 @@ const (
 
 type (
 	Q struct {
-		Action int
-		Sector string
-		RProps Props
-		Cons   Constraints
-		Vals   Props
-		Mods   Constraints
-		Limit  int
+		Action        int
+		Sector        string
+		RProps        Props
+		Cons          Constraints
+		Vals          Props
+		Mods          Constraints
+		Limit, Offset int
 	}
 
 	Props []string
@@ -53,16 +53,19 @@ func NewQOne(sector string, props Props, cons Constraints) Q {
 		Sector: sector,
 		RProps: props,
 		Cons:   cons,
+		Limit:  1,
+		Offset: 0,
 	}
 }
 
-func NewQMulti(sector string, props Props, cons Constraints, limit int) Q {
+func NewQMulti(sector string, props Props, cons Constraints, limit int, offset int) Q {
 	return Q{
 		Action: ACTION_QUERY_MULTI,
 		Sector: sector,
 		RProps: props,
 		Cons:   cons,
 		Limit:  limit,
+		Offset: offset,
 	}
 }
 

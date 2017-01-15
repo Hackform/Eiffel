@@ -127,26 +127,35 @@ INSERT INTO products (product_no, name, price) VALUES
     (2, 'Bread', 1.99),
     (3, 'Milk', 2.99);
 */
-func parseQ(qu q.Q) string {
+
+func parseQuery(qu q.Q) string {
 	query := bytes.Buffer{}
-	switch qu.Action {
-	case q.ACTION_QUERY_ONE:
-		query.WriteString("SELECT ")
-		l := len(qu.RProps) - 1
-		for n, i := range qu.RProps {
-			query.WriteString(i)
-			if n < l {
-				query.WriteString(", ")
-			}
+	query.WriteString("SELECT ")
+	l := len(qu.RProps) - 1
+	for n, i := range qu.RProps {
+		query.WriteString(i)
+		if n < l {
+			query.WriteString(", ")
 		}
-		query.WriteString(" FROM " + qu.Sector + " LIMIT 1")
-		if qu.Cons != nil {
-			query.WriteString(" WHERE ")
-			query.WriteString(parseConstraints(qu.Cons))
-		}
-		query.WriteString(";")
 	}
+	query.WriteString(" FROM " + qu.Sector)
+	if qu.Cons != nil {
+		query.WriteString(" WHERE ")
+		query.WriteString(parseConstraints(qu.Cons))
+	}
+	if qu.Action == q.ACTION_QUERY_MULTI {
+		query.WriteString(" LIMIT " + strconv.Itoa(qu.Limit) + " OFFSET " + strconv.Itoa(qu.Offset))
+	}
+	query.WriteString(";")
 	return query.String()
+}
+
+func parseQ(qu q.Q) string {
+	switch qu.Action {
+	case q.ACTION_QUERY_ONE, q.ACTION_QUERY_MULTI:
+		return parseQuery(qu)
+	}
+	return ""
 }
 
 func parseConstraints(cons q.Constraints) string {
