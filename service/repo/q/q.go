@@ -5,8 +5,11 @@ package q
 /////////////
 
 const (
-	ACTION_QUERY_ALL = iota
+	ACTION_QUERY_MULTI = iota
 	ACTION_QUERY_ONE
+	ACTION_INSERT
+	ACTION_UPDATE
+	ACTION_CREATE_TABLE
 )
 
 ////////////////
@@ -34,6 +37,9 @@ type (
 		Sector string
 		RProps Props
 		Cons   Constraints
+		Vals   Props
+		Mods   Constraints
+		Limit  int
 	}
 
 	Props []string
@@ -41,11 +47,50 @@ type (
 	Constraints []*Constraint
 )
 
-func New(action int, sector string, props Props, cons Constraints) Q {
+func NewQOne(sector string, props Props, cons Constraints) Q {
 	return Q{
-		Action: action,
+		Action: ACTION_QUERY_ONE,
 		Sector: sector,
 		RProps: props,
+		Cons:   cons,
+	}
+}
+
+func NewQMulti(sector string, props Props, cons Constraints, limit int) Q {
+	return Q{
+		Action: ACTION_QUERY_MULTI,
+		Sector: sector,
+		RProps: props,
+		Cons:   cons,
+		Limit:  limit,
+	}
+}
+
+/*
+INSERT INTO products (product_no, name, price) VALUES
+    (1, 'Cheese', 9.99),
+    (2, 'Bread', 1.99),
+    (3, 'Milk', 2.99);
+*/
+func NewI(sector string, props Props, vals Props) Q {
+	return Q{
+		Action: ACTION_INSERT,
+		Sector: sector,
+		RProps: props,
+		Vals:   vals,
+	}
+}
+
+/*
+UPDATE T
+SET C1 = 1
+WHERE C2 = 'a'
+*/
+func NewU(sector string, mods Constraints, cons Constraints) Q {
+	return Q{
+		Action: ACTION_UPDATE,
+		Sector: sector,
+		Mods:   mods,
 		Cons:   cons,
 	}
 }

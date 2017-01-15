@@ -7,7 +7,7 @@ import (
 
 func Test_Q_New(t *testing.T) {
 	assert := assert.New(t)
-	query := New(ACTION_QUERY_ONE, "test_sector", Props{"prop_1", "prop_2", "another_prop"}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")})
+	query := NewQOne("test_sector", Props{"prop_1", "prop_2", "another_prop"}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")})
 	assert.Equal(ACTION_QUERY_ONE, query.Action, "property Action should be instantiated")
 	assert.Equal("test_sector", query.Sector, "property Sector should be instantiated")
 	assert.Equal(3, len(query.RProps), "property RProps should be instantiated")
