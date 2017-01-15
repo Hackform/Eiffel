@@ -78,7 +78,7 @@ func Test_parseConstraints(t *testing.T) {
 	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints(qc), "parseConstraints should properly render q_OR")
 }
 
-func Test_parseQ(t *testing.T) {
+func Test_parseQ_One(t *testing.T) {
 	assert := assert.New(t)
 	query := q.NewQOne("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil)
 	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector;", parseQ(query), "parseQ should properly render q_ACTION_QUERY_ONE")
@@ -86,10 +86,25 @@ func Test_parseQ(t *testing.T) {
 	qc := q.Constraints{q.NewCon("key_1", q.EQUAL, "value_1")}
 	query = q.NewQOne("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc)
 	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1;", parseQ(query), "parseQ should properly render constraints")
+}
 
-	query = q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil, 5, 10)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly multi select")
+func Test_parseQ_Multi(t *testing.T) {
+	assert := assert.New(t)
+	qc := q.Constraints{q.NewCon("key_1", q.EQUAL, "value_1")}
+
+	query := q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil, 5, 10)
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render multi select")
 
 	query = q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc, 5, 10)
 	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1 LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render multi select and constraints")
+}
+
+func Test_parseQ_Insert(t *testing.T) {
+	assert := assert.New(t)
+
+	query := q.NewI("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, q.Props{"val_first", "val_2", "val_3"})
+	assert.Equal("INSERT INTO test_sector (prop_1, prop_2, another_prop) VALUES (val_first, val_2, val_3);", parseQ(query), "parseQ should properly render insert")
+
+	query = q.NewI("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, q.Props{"$", "$", "$"})
+	assert.Equal("INSERT INTO test_sector (prop_1, prop_2, another_prop) VALUES ($1, $2, $3);", parseQ(query), "parseQ should properly render insert and arg values")
 }

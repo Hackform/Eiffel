@@ -150,10 +150,38 @@ func parseQuery(qu q.Q) string {
 	return query.String()
 }
 
+func parseInsert(qu q.Q) string {
+	query := bytes.Buffer{}
+	query.WriteString("INSERT INTO " + qu.Sector + " (")
+	l := len(qu.RProps) - 1
+	for n, i := range qu.RProps {
+		query.WriteString(i)
+		if n < l {
+			query.WriteString(", ")
+		}
+	}
+	query.WriteString(") VALUES (")
+	k := kappa.New()
+	for n, i := range qu.Vals {
+		if i == escape_sequence {
+			query.WriteString(escape_sequence + strconv.Itoa(k.Get()))
+		} else {
+			query.WriteString(i)
+		}
+		if n < l {
+			query.WriteString(", ")
+		}
+	}
+	query.WriteString(");")
+	return query.String()
+}
+
 func parseQ(qu q.Q) string {
 	switch qu.Action {
 	case q.ACTION_QUERY_ONE, q.ACTION_QUERY_MULTI:
 		return parseQuery(qu)
+	case q.ACTION_INSERT:
+		return parseInsert(qu)
 	}
 	return ""
 }
