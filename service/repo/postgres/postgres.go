@@ -118,16 +118,6 @@ func (t *tx) Rollback() error {
 	return nil
 }
 
-/*
-UPDATE T
-SET C1 = 1
-WHERE C2 = 'a'
-INSERT INTO products (product_no, name, price) VALUES
-    (1, 'Cheese', 9.99),
-    (2, 'Bread', 1.99),
-    (3, 'Milk', 2.99);
-*/
-
 func parseQuery(qu q.Q) string {
 	query := bytes.Buffer{}
 	query.WriteString("SELECT ")
@@ -141,7 +131,8 @@ func parseQuery(qu q.Q) string {
 	query.WriteString(" FROM " + qu.Sector)
 	if qu.Cons != nil {
 		query.WriteString(" WHERE ")
-		query.WriteString(parseConstraints(qu.Cons))
+		k := kappa.New()
+		query.WriteString(parseConstraints(qu.Cons, k))
 	}
 	if qu.Action == q.ACTION_QUERY_MULTI {
 		query.WriteString(" LIMIT " + strconv.Itoa(qu.Limit) + " OFFSET " + strconv.Itoa(qu.Offset))
@@ -176,18 +167,43 @@ func parseInsert(qu q.Q) string {
 	return query.String()
 }
 
+func parseUpdate(qu q.Q) string {
+	query := bytes.Buffer{}
+	query.WriteString("UPDATE " + qu.Sector + " SET ")
+	k := kappa.New()
+	l := len(qu.Mods) - 1
+	for n, i := range qu.Mods {
+		query.WriteString(i.Key + " = ")
+		if i.Value == escape_sequence {
+			query.WriteString(escape_sequence + strconv.Itoa(k.Get()))
+		} else {
+			query.WriteString(i.Value)
+		}
+		if n < l {
+			query.WriteString(", ")
+		}
+	}
+	if qu.Cons != nil {
+		query.WriteString(" WHERE ")
+		query.WriteString(parseConstraints(qu.Cons, k))
+	}
+	query.WriteString(";")
+	return query.String()
+}
+
 func parseQ(qu q.Q) string {
 	switch qu.Action {
 	case q.ACTION_QUERY_ONE, q.ACTION_QUERY_MULTI:
 		return parseQuery(qu)
 	case q.ACTION_INSERT:
 		return parseInsert(qu)
+	case q.ACTION_UPDATE:
+		return parseUpdate(qu)
 	}
 	return ""
 }
 
-func parseConstraints(cons q.Constraints) string {
-	k := kappa.New()
+func parseConstraints(cons q.Constraints, k *kappa.Kappa) string {
 	l := len(cons) - 1
 	clause := bytes.Buffer{}
 	for n, i := range cons {
@@ -211,9 +227,9 @@ func parseConstraints(cons q.Constraints) string {
 			clause.WriteString(" <= ")
 
 		case q.AND:
-			clause.WriteString("(" + parseConstraints(q.Constraints{i.Con1}) + " AND " + parseConstraints(q.Constraints{i.Con2}) + ")")
+			clause.WriteString("(" + parseConstraints(q.Constraints{i.Con1}, k) + " AND " + parseConstraints(q.Constraints{i.Con2}, k) + ")")
 		case q.OR:
-			clause.WriteString("(" + parseConstraints(q.Constraints{i.Con1}) + " OR " + parseConstraints(q.Constraints{i.Con2}) + ")")
+			clause.WriteString("(" + parseConstraints(q.Constraints{i.Con1}, k) + " OR " + parseConstraints(q.Constraints{i.Con2}, k) + ")")
 		}
 
 		if c != q.AND && c != q.OR {

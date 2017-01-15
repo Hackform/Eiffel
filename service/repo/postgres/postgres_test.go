@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/Hackform/Eiffel"
+	"github.com/Hackform/Eiffel/service/kappa"
 	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/Hackform/Eiffel/service/repo/q"
 	"github.com/stretchr/testify/assert"
@@ -61,21 +62,31 @@ func Test_parseConstraints(t *testing.T) {
 	assert := assert.New(t)
 	a := q.NewCon("key_1", q.EQUAL, "value_1")
 	qc := q.Constraints{a}
-	assert.Equal("key_1 = value_1", parseConstraints(qc), "parseConstraints should properly render q_EQUAL")
+	k := kappa.New()
+	assert.Equal("key_1 = value_1", parseConstraints(qc, k), "parseConstraints should properly render q_EQUAL")
 
 	a.Condition = q.UNEQUAL
-	assert.Equal("key_1 <> value_1", parseConstraints(qc), "parseConstraints should properly render q_UNEQUAL")
+	k = kappa.New()
+	assert.Equal("key_1 <> value_1", parseConstraints(qc, k), "parseConstraints should properly render q_UNEQUAL")
 
 	b := q.NewCon("key_2", q.EQUAL, "$")
 	qc = q.Constraints{b}
-	assert.Equal("key_2 = $1", parseConstraints(qc), "parseConstraints should properly substitute escape_sequence")
+	k = kappa.New()
+	assert.Equal("key_2 = $1", parseConstraints(qc, k), "parseConstraints should properly substitute escape_sequence")
 
 	qc = q.Constraints{a, b}
-	assert.Equal("key_1 <> value_1 AND key_2 = $1", parseConstraints(qc), "parseConstraints should by default adjoin multiple constraints with 'AND'")
+	k = kappa.New()
+	assert.Equal("key_1 <> value_1 AND key_2 = $1", parseConstraints(qc, k), "parseConstraints should by default adjoin multiple constraints with 'AND'")
 
 	c := q.NewOp(a, q.OR, b)
 	qc = q.Constraints{c}
-	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints(qc), "parseConstraints should properly render q_OR")
+	k = kappa.New()
+	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints(qc, k), "parseConstraints should properly render q_OR")
+
+	d := q.NewOp(c, q.OR, q.NewCon("key_4", q.EQUAL, "$"))
+	qc = q.Constraints{d}
+	k = kappa.New()
+	assert.Equal("((key_1 <> value_1 OR key_2 = $1) OR key_4 = $2)", parseConstraints(qc, k), "parseConstraints should properly render q_OR")
 }
 
 func Test_parseQ_One(t *testing.T) {
@@ -107,4 +118,21 @@ func Test_parseQ_Insert(t *testing.T) {
 
 	query = q.NewI("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, q.Props{"$", "$", "$"})
 	assert.Equal("INSERT INTO test_sector (prop_1, prop_2, another_prop) VALUES ($1, $2, $3);", parseQ(query), "parseQ should properly render insert and arg values")
+}
+
+func Test_parseQ_Update(t *testing.T) {
+	assert := assert.New(t)
+	qv := q.Constraints{q.NewEq("key_1", "value_1")}
+	qc := q.Constraints{q.NewCon("key_2", q.EQUAL, "value_2")}
+
+	query := q.NewU("test_sector", qv, nil)
+	assert.Equal("UPDATE test_sector SET key_1 = value_1;", parseQ(query), "parseQ should properly render update")
+
+	query = q.NewU("test_sector", qv, qc)
+	assert.Equal("UPDATE test_sector SET key_1 = value_1 WHERE key_2 = value_2;", parseQ(query), "parseQ should properly render update with constraints")
+
+	qv = q.Constraints{q.NewEq("key_1", "$"), q.NewEq("key_2", "$")}
+	qc = q.Constraints{q.NewCon("key_3", q.EQUAL, "$")}
+	query = q.NewU("test_sector", qv, qc)
+	assert.Equal("UPDATE test_sector SET key_1 = $1, key_2 = $2 WHERE key_3 = $3;", parseQ(query), "parseQ should properly render update with constraints")
 }
