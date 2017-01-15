@@ -80,3 +80,11 @@ func Test_Q_Constraint_NewOp(t *testing.T) {
 	assert.Equal(b, c.Con2, "property Con2 should be instantiated")
 	assert.Equal(OR, c.Condition, "property Condition should be instantiated")
 }
+
+func Test_Q_Constraint_NewType(t *testing.T) {
+	assert := assert.New(t)
+	a := NewType("key_1", INT, NOT_NULL_UNIQUE)
+	assert.Equal("key_1", a.Key, "property Key should be instantiated")
+	assert.Equal(INT, a.Condition, "property Condition should be instantiated")
+	assert.Equal(NOT_NULL_UNIQUE, a.ColCon, "property ColCon should be instantiated")
+}

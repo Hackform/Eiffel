@@ -27,3 +27,32 @@ const (
 	AND
 	OR
 )
+
+/////////////////
+// Constraints //
+/////////////////
+
+const (
+	UNIQUE = iota
+	NOT_NULL
+	NOT_NULL_UNIQUE
+	PRIMARY
+)
+
+///////////
+// Types //
+///////////
+
+const (
+	BOOLEAN = iota
+	UUID
+	VARCHAR
+	CHAR
+	TEXT
+	SMALLINT
+	INT
+	BIGINT
+	REAL
+	DOUBLE
+	TIMESTAMP
+)
