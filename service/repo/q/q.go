@@ -9,6 +9,7 @@ const (
 	ACTION_QUERY_MULTI
 	ACTION_INSERT
 	ACTION_UPDATE
+	ACTION_DELETE
 	ACTION_CREATE_TABLE
 )
 
@@ -83,6 +84,14 @@ func NewU(sector string, mods Constraints, cons Constraints) Q {
 		Action: ACTION_UPDATE,
 		Sector: sector,
 		Mods:   mods,
+		Cons:   cons,
+	}
+}
+
+func NewD(sector string, cons Constraints) Q {
+	return Q{
+		Action: ACTION_DELETE,
+		Sector: sector,
 		Cons:   cons,
 	}
 }
