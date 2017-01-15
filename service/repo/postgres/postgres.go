@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	driverName = "postgres"
-	arg_escape = "$"
+	driverName      = "postgres"
+	escape_sequence = "$"
 )
 
 ///////////////////////
@@ -106,10 +106,6 @@ func newTx(t *sql.Tx) *tx {
 	}
 }
 
-func (t *tx) EscapeSequence() string {
-	return arg_escape
-}
-
 func (t *tx) Statement(q.Q) (repo.Stmt, error) {
 	return nil, nil
 }
@@ -122,7 +118,16 @@ func (t *tx) Rollback() error {
 	return nil
 }
 
-func parseQ(escape_sequence string, qu q.Q) string {
+/*
+UPDATE T
+SET C1 = 1
+WHERE C2 = 'a'
+INSERT INTO products (product_no, name, price) VALUES
+    (1, 'Cheese', 9.99),
+    (2, 'Bread', 1.99),
+    (3, 'Milk', 2.99);
+*/
+func parseQ(qu q.Q) string {
 	query := bytes.Buffer{}
 	switch qu.Action {
 	case q.ACTION_QUERY_ONE:
@@ -137,14 +142,14 @@ func parseQ(escape_sequence string, qu q.Q) string {
 		query.WriteString(" FROM " + qu.Sector + " LIMIT 1")
 		if qu.Cons != nil {
 			query.WriteString(" WHERE ")
-			query.WriteString(parseConstraints(escape_sequence, qu.Cons))
+			query.WriteString(parseConstraints(qu.Cons))
 		}
 		query.WriteString(";")
 	}
 	return query.String()
 }
 
-func parseConstraints(escape_sequence string, cons q.Constraints) string {
+func parseConstraints(cons q.Constraints) string {
 	k := kappa.New()
 	l := len(cons) - 1
 	clause := bytes.Buffer{}
@@ -169,9 +174,9 @@ func parseConstraints(escape_sequence string, cons q.Constraints) string {
 			clause.WriteString(" <= ")
 
 		case q.AND:
-			clause.WriteString("(" + parseConstraints(escape_sequence, q.Constraints{i.Con1}) + " AND " + parseConstraints(escape_sequence, q.Constraints{i.Con2}) + ")")
+			clause.WriteString("(" + parseConstraints(q.Constraints{i.Con1}) + " AND " + parseConstraints(q.Constraints{i.Con2}) + ")")
 		case q.OR:
-			clause.WriteString("(" + parseConstraints(escape_sequence, q.Constraints{i.Con1}) + " OR " + parseConstraints(escape_sequence, q.Constraints{i.Con2}) + ")")
+			clause.WriteString("(" + parseConstraints(q.Constraints{i.Con1}) + " OR " + parseConstraints(q.Constraints{i.Con2}) + ")")
 		}
 
 		if c != q.AND && c != q.OR {

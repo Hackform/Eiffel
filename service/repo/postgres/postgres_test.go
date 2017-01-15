@@ -61,29 +61,29 @@ func Test_parseConstraints(t *testing.T) {
 	assert := assert.New(t)
 	a := q.NewCon("key_1", q.EQUAL, "value_1")
 	qc := q.Constraints{a}
-	assert.Equal("key_1 = value_1", parseConstraints("$", qc), "parseConstraints should properly render q_EQUAL")
+	assert.Equal("key_1 = value_1", parseConstraints(qc), "parseConstraints should properly render q_EQUAL")
 
 	a.Condition = q.UNEQUAL
-	assert.Equal("key_1 <> value_1", parseConstraints("$", qc), "parseConstraints should properly render q_UNEQUAL")
+	assert.Equal("key_1 <> value_1", parseConstraints(qc), "parseConstraints should properly render q_UNEQUAL")
 
 	b := q.NewCon("key_2", q.EQUAL, "$")
 	qc = q.Constraints{b}
-	assert.Equal("key_2 = $1", parseConstraints("$", qc), "parseConstraints should properly substitute escape_sequence")
+	assert.Equal("key_2 = $1", parseConstraints(qc), "parseConstraints should properly substitute escape_sequence")
 
 	qc = q.Constraints{a, b}
-	assert.Equal("key_1 <> value_1 AND key_2 = $1", parseConstraints("$", qc), "parseConstraints should by default adjoin multiple constraints with 'AND'")
+	assert.Equal("key_1 <> value_1 AND key_2 = $1", parseConstraints(qc), "parseConstraints should by default adjoin multiple constraints with 'AND'")
 
 	c := q.NewOp(a, q.OR, b)
 	qc = q.Constraints{c}
-	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints("$", qc), "parseConstraints should properly render q_OR")
+	assert.Equal("(key_1 <> value_1 OR key_2 = $1)", parseConstraints(qc), "parseConstraints should properly render q_OR")
 }
 
 func Test_parseQ(t *testing.T) {
 	assert := assert.New(t)
 	query := q.NewQOne("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 1;", parseQ("$", query), "parseQ should properly render q_ACTION_QUERY_ONE")
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 1;", parseQ(query), "parseQ should properly render q_ACTION_QUERY_ONE")
 
 	qc := q.Constraints{q.NewCon("key_1", q.EQUAL, "value_1")}
 	query = q.NewQOne("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 1 WHERE key_1 = value_1;", parseQ("$", query), "parseQ should properly render constraints")
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 1 WHERE key_1 = value_1;", parseQ(query), "parseQ should properly render constraints")
 }

@@ -66,12 +66,6 @@ func NewQMulti(sector string, props Props, cons Constraints, limit int) Q {
 	}
 }
 
-/*
-INSERT INTO products (product_no, name, price) VALUES
-    (1, 'Cheese', 9.99),
-    (2, 'Bread', 1.99),
-    (3, 'Milk', 2.99);
-*/
 func NewI(sector string, props Props, vals Props) Q {
 	return Q{
 		Action: ACTION_INSERT,
@@ -81,11 +75,6 @@ func NewI(sector string, props Props, vals Props) Q {
 	}
 }
 
-/*
-UPDATE T
-SET C1 = 1
-WHERE C2 = 'a'
-*/
 func NewU(sector string, mods Constraints, cons Constraints) Q {
 	return Q{
 		Action: ACTION_UPDATE,
@@ -112,6 +101,14 @@ func NewCon(key string, condition int, value string) *Constraint {
 	return &Constraint{
 		Key:       key,
 		Condition: condition,
+		Value:     value,
+	}
+}
+
+func NewEq(key string, value string) *Constraint {
+	return &Constraint{
+		Key:       key,
+		Condition: EQUAL,
 		Value:     value,
 	}
 }

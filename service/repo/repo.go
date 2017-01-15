@@ -12,7 +12,6 @@ type (
 	}
 
 	Tx interface {
-		EscapeSequence() string
 		Statement(q.Q) (Stmt, error)
 		Commit() error
 		Rollback() error

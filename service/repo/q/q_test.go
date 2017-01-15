@@ -52,6 +52,16 @@ func Test_Q_Constraint_NewCon(t *testing.T) {
 	assert.Equal("$", b.Value, "property Value should be instantiated")
 }
 
+func Test_Q_Constraint_NewEq(t *testing.T) {
+	assert := assert.New(t)
+	a := NewEq("key_1", "value_1")
+	assert.Equal(EQUAL, a.Condition, "property Condition should be instantiated")
+	assert.Equal("key_1", a.Key, "property Key should be instantiated")
+	assert.Equal("value_1", a.Value, "property Value should be instantiated")
+	b := NewEq("key_2", "$")
+	assert.Equal("$", b.Value, "property Value should be instantiated")
+}
+
 func Test_Q_Constraint_NewOp(t *testing.T) {
 	assert := assert.New(t)
 	a := NewCon("key_1", EQUAL, "value_1")
