@@ -88,8 +88,8 @@ func Test_parseQ(t *testing.T) {
 	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1;", parseQ(query), "parseQ should properly render constraints")
 
 	query = q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil, 5, 10)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render constraints")
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly multi select")
 
 	query = q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc, 5, 10)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1 LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render constraints")
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1 LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render multi select and constraints")
 }

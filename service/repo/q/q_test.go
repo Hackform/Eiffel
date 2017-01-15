@@ -39,7 +39,7 @@ func Test_Q_NewU(t *testing.T) {
 	query := NewU("test_sector", Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")})
 	assert.Equal(ACTION_UPDATE, query.Action, "property Action should be instantiated")
 	assert.Equal("test_sector", query.Sector, "property Sector should be instantiated")
-	assert.Equal(2, len(query.Mods), "property RProps should be instantiated")
+	assert.Equal(2, len(query.Mods), "property Mods should be instantiated")
 	assert.Equal(2, len(query.Cons), "property Cons should be instantiated")
 }
 
