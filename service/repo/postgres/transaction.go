@@ -25,16 +25,17 @@ func newTx(t *sql.Tx) *tx {
 	}
 }
 
-func (t *tx) Statement(q.Q) (repo.Stmt, error) {
-	return nil, nil
+func (t *tx) Statement(query q.Q) (repo.Stmt, error) {
+	stmt, err := t.t.Prepare(parseQ(query))
+	return newStmt(stmt), err
 }
 
 func (t *tx) Commit() error {
-	return nil
+	return t.t.Commit()
 }
 
 func (t *tx) Rollback() error {
-	return nil
+	return t.t.Rollback()
 }
 
 func parseQuery(qu q.Q) string {
