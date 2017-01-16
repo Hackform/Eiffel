@@ -5,6 +5,6 @@ import (
 	"testing"
 )
 
-func Upsilon(t *testing.T) {
+func Test_Upsilon(t *testing.T) {
 	_ = assert.New(t)
 }

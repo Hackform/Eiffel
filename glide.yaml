@@ -2,6 +2,5 @@ package: github.com/Hackform/Eiffel
 import:
 - package: github.com/labstack/echo
   version: ^3.0.3
-- package: github.com/lib/pq
 - package: github.com/stretchr/testify
   version: ^1.1.4
