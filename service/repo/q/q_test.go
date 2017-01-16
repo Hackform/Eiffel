@@ -53,7 +53,7 @@ func Test_Q_NewD(t *testing.T) {
 
 func Test_Q_NewT(t *testing.T) {
 	assert := assert.New(t)
-	query := NewT("test_sector", Constraints{NewType("key_1", INT, NONE), NewType("key_2", BIGINT, UNIQUE)})
+	query := NewT("test_sector", Constraints{NewType("key_1", INT, NONE, 0), NewType("key_2", BIGINT, UNIQUE, 0)})
 	assert.Equal(ACTION_CREATE_TABLE, query.Action, "property Action should be instantiated")
 	assert.Equal("test_sector", query.Sector, "property Sector should be instantiated")
 	assert.Equal(2, len(query.Cons), "property Cons should be instantiated")
@@ -102,7 +102,7 @@ func Test_Q_Constraint_NewOrd(t *testing.T) {
 
 func Test_Q_Constraint_NewType(t *testing.T) {
 	assert := assert.New(t)
-	a := NewType("key_1", INT, NOT_NULL_UNIQUE)
+	a := NewType("key_1", INT, NOT_NULL_UNIQUE, 0)
 	assert.Equal("key_1", a.Key, "property Key should be instantiated")
 	assert.Equal(INT, a.Condition, "property Condition should be instantiated")
 	assert.Equal(NOT_NULL_UNIQUE, a.ColCon, "property ColCon should be instantiated")

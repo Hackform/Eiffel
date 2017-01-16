@@ -139,7 +139,52 @@ func parseDelete(qu q.Q) string {
 }
 
 func parseT(qu q.Q) string {
-	return ""
+	query := bytes.Buffer{}
+	query.WriteString("CREATE TABLE " + qu.Sector + " (")
+	l := len(qu.Cons) - 1
+	for n, i := range qu.Cons {
+		query.WriteString(i.Key)
+		switch i.Condition {
+		case q.BOOLEAN:
+			query.WriteString(" BOOLEAN")
+		case q.UUID:
+			query.WriteString(" UUID")
+		case q.VARCHAR:
+			query.WriteString(" VARCHAR(" + strconv.Itoa(i.Size) + ")")
+		case q.CHAR:
+			query.WriteString(" CHAR(" + strconv.Itoa(i.Size) + ")")
+		case q.TEXT:
+			query.WriteString(" TEXT")
+		case q.SMALLINT:
+			query.WriteString(" SMALLINT")
+		case q.INT:
+			query.WriteString(" INT")
+		case q.BIGINT:
+			query.WriteString(" BIGINT")
+		case q.REAL:
+			query.WriteString(" REAL")
+		case q.DOUBLE:
+			query.WriteString(" DOUBLE")
+		case q.TIMESTAMP:
+			query.WriteString(" TIMESTAMP")
+		}
+		switch i.ColCon {
+		case q.NONE:
+		case q.NOT_NULL:
+			query.WriteString(" NOT NULL")
+		case q.UNIQUE:
+			query.WriteString(" UNIQUE")
+		case q.NOT_NULL_UNIQUE:
+			query.WriteString(" NOT NULL UNIQUE")
+		case q.PRIMARY:
+			query.WriteString(" PRIMARY KEY")
+		}
+		if n < l {
+			query.WriteString(", ")
+		}
+	}
+	query.WriteString(");")
+	return query.String()
 }
 
 func parseQ(qu q.Q) string {
@@ -152,6 +197,8 @@ func parseQ(qu q.Q) string {
 		return parseUpdate(qu)
 	case q.ACTION_DELETE:
 		return parseDelete(qu)
+	case q.ACTION_CREATE_TABLE:
+		return parseT(qu)
 	}
 	return ""
 }

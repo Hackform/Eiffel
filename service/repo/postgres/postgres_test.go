@@ -152,3 +152,10 @@ func Test_parseQ_Delete(t *testing.T) {
 	query = q.NewD("test_sector", qc)
 	assert.Equal("DELETE FROM test_sector WHERE key_1 = $1 AND key_2 = $2;", parseQ(query), "parseQ should properly render delete with arg conditions")
 }
+
+func Test_parseQ_Table(t *testing.T) {
+	assert := assert.New(t)
+
+	query := q.NewT("test_sector", q.Constraints{q.NewType("key_1", q.UUID, q.PRIMARY, 0), q.NewType("key_2", q.VARCHAR, q.NOT_NULL_UNIQUE, 32)})
+	assert.Equal("CREATE TABLE test_sector (key_1 UUID PRIMARY KEY, key_2 VARCHAR(32) NOT NULL UNIQUE);", parseQ(query), "parseQ should properly render create table")
+}

@@ -11,6 +11,7 @@ type (
 		Value      string
 		Con1, Con2 *Constraint
 		ColCon     int
+		Size       int
 	}
 )
 
@@ -45,10 +46,11 @@ func NewOrd(key string, order int) *Constraint {
 	}
 }
 
-func NewType(key string, condition int, colcon int) *Constraint {
+func NewType(key string, dataType int, colcon int, size int) *Constraint {
 	return &Constraint{
 		Key:       key,
-		Condition: condition,
+		Condition: dataType,
 		ColCon:    colcon,
+		Size:      size,
 	}
 }
