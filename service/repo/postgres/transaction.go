@@ -54,7 +54,23 @@ func parseQuery(qu q.Q) string {
 		query.WriteString(parseConstraints(qu.Cons, k))
 	}
 	if qu.Action == q.ACTION_QUERY_MULTI {
-		query.WriteString(" LIMIT " + strconv.Itoa(qu.Limit) + " OFFSET " + strconv.Itoa(qu.Offset))
+		if qu.Order != nil {
+			query.WriteString(" ORDER BY ")
+			l := len(qu.Order) - 1
+			for n, i := range qu.Order {
+				query.WriteString(i.Key)
+				switch i.Condition {
+				case q.ASC:
+					query.WriteString(" ASC")
+				case q.DESC:
+					query.WriteString(" DESC")
+				}
+				if n < l {
+					query.WriteString(", ")
+				}
+			}
+		}
+		query.WriteString(" LIMIT " + strconv.Itoa(qu.Limit))
 	}
 	query.WriteString(";")
 	return query.String()

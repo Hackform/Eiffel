@@ -103,11 +103,12 @@ func Test_parseQ_Multi(t *testing.T) {
 	assert := assert.New(t)
 	qc := q.Constraints{q.NewCon("key_1", q.EQUAL, "value_1")}
 
-	query := q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil, 5, 10)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render multi select")
+	query := q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, nil, 5, nil)
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector LIMIT 5;", parseQ(query), "parseQ should properly render multi select")
 
-	query = q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc, 5, 10)
-	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1 LIMIT 5 OFFSET 10;", parseQ(query), "parseQ should properly render multi select and constraints")
+	qorder := q.Constraints{q.NewOrd("prop_1", q.ASC), q.NewOrd("prop_2", q.DESC)}
+	query = q.NewQMulti("test_sector", q.Props{"prop_1", "prop_2", "another_prop"}, qc, 5, qorder)
+	assert.Equal("SELECT prop_1, prop_2, another_prop FROM test_sector WHERE key_1 = value_1 ORDER BY prop_1 ASC, prop_2 DESC LIMIT 5;", parseQ(query), "parseQ should properly render multi select and constraints")
 }
 
 func Test_parseQ_Insert(t *testing.T) {

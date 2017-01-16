@@ -1,5 +1,5 @@
-hash: 451bb0022d35e836c654d2dfb64d4f913b2d127b902479af7d7cd8fcae504517
-updated: 2017-01-12T16:54:36.892802732-08:00
+hash: a81496b6d25714bab54c4ecca7315d7e2a9552d6c3c6db74a97c5924f8449b2f
+updated: 2017-01-15T15:37:38.055173842-08:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
@@ -22,6 +22,8 @@ imports:
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
+- name: github.com/pborman/uuid
+  version: a97ce2ca70fa5a848076093f05e639a89ca34d06
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:

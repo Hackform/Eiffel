@@ -6,13 +6,14 @@ package q
 
 type (
 	Q struct {
-		Action        int
-		Sector        string
-		RProps        Props
-		Cons          Constraints
-		Vals          Props
-		Mods          Constraints
-		Limit, Offset int
+		Action int
+		Sector string
+		RProps Props
+		Cons   Constraints
+		Vals   Props
+		Mods   Constraints
+		Limit  int
+		Order  Constraints
 	}
 
 	Props []string
@@ -26,19 +27,17 @@ func NewQOne(sector string, props Props, cons Constraints) Q {
 		Sector: sector,
 		RProps: props,
 		Cons:   cons,
-		Limit:  1,
-		Offset: 0,
 	}
 }
 
-func NewQMulti(sector string, props Props, cons Constraints, limit int, offset int) Q {
+func NewQMulti(sector string, props Props, cons Constraints, limit int, order Constraints) Q {
 	return Q{
 		Action: ACTION_QUERY_MULTI,
 		Sector: sector,
 		RProps: props,
 		Cons:   cons,
 		Limit:  limit,
-		Offset: offset,
+		Order:  order,
 	}
 }
 

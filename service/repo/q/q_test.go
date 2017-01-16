@@ -16,13 +16,13 @@ func Test_Q_NewQOne(t *testing.T) {
 
 func Test_Q_NewQMulti(t *testing.T) {
 	assert := assert.New(t)
-	query := NewQMulti("test_sector", Props{"prop_1", "prop_2", "another_prop"}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")}, 5, 3)
+	query := NewQMulti("test_sector", Props{"prop_1", "prop_2", "another_prop"}, Constraints{NewCon("key_1", EQUAL, "value_1"), NewCon("key_2", EQUAL, "value_2")}, 5, Constraints{NewOrd("prop_1", ASC)})
 	assert.Equal(ACTION_QUERY_MULTI, query.Action, "property Action should be instantiated")
 	assert.Equal("test_sector", query.Sector, "property Sector should be instantiated")
 	assert.Equal(3, len(query.RProps), "property RProps should be instantiated")
 	assert.Equal(2, len(query.Cons), "property Cons should be instantiated")
 	assert.Equal(5, query.Limit, "property Limit should be instantiated")
-	assert.Equal(3, query.Offset, "property Offset should be instantiated")
+	assert.Equal(1, len(query.Order), "property Order should be instantiated")
 }
 
 func Test_Q_NewI(t *testing.T) {
@@ -79,6 +79,17 @@ func Test_Q_Constraint_NewOp(t *testing.T) {
 	assert.Equal(a, c.Con1, "property Con1 should be instantiated")
 	assert.Equal(b, c.Con2, "property Con2 should be instantiated")
 	assert.Equal(OR, c.Condition, "property Condition should be instantiated")
+}
+
+func Test_Q_Constraint_NewOrd(t *testing.T) {
+	assert := assert.New(t)
+	a := NewOrd("key_1", ASC)
+	b := NewOrd("key_2", DESC)
+
+	assert.Equal("key_1", a.Key, "property Key should be instantiated")
+	assert.Equal(ASC, a.Condition, "property Condition should be instantiated")
+	assert.Equal("key_2", b.Key, "property Key should be instantiated")
+	assert.Equal(DESC, b.Condition, "property Condition should be instantiated")
 }
 
 func Test_Q_Constraint_NewType(t *testing.T) {

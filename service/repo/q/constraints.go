@@ -38,6 +38,13 @@ func NewOp(con1 *Constraint, condition int, con2 *Constraint) *Constraint {
 	}
 }
 
+func NewOrd(key string, order int) *Constraint {
+	return &Constraint{
+		Key:       key,
+		Condition: order,
+	}
+}
+
 func NewType(key string, condition int, colcon int) *Constraint {
 	return &Constraint{
 		Key:       key,
