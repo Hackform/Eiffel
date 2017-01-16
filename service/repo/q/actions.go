@@ -42,7 +42,8 @@ const (
 /////////////////
 
 const (
-	UNIQUE = iota
+	NONE = iota
+	UNIQUE
 	NOT_NULL
 	NOT_NULL_UNIQUE
 	PRIMARY

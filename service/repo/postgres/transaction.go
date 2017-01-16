@@ -138,6 +138,10 @@ func parseDelete(qu q.Q) string {
 	return query.String()
 }
 
+func parseT(qu q.Q) string {
+	return ""
+}
+
 func parseQ(qu q.Q) string {
 	switch qu.Action {
 	case q.ACTION_QUERY_ONE, q.ACTION_QUERY_MULTI:

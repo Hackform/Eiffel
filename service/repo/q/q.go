@@ -67,7 +67,7 @@ func NewD(sector string, cons Constraints) Q {
 	}
 }
 
-func NewDB(sector string, cons Constraints) Q {
+func NewT(sector string, cons Constraints) Q {
 	return Q{
 		Action: ACTION_CREATE_TABLE,
 		Sector: sector,
