@@ -9,11 +9,8 @@ import (
 
 func Test_Cassandra_New(t *testing.T) {
 	assert := assert.New(t)
-	var cass interface{} = New("keyspace", []string{"nodeIp"}, "username", "password")
+	cass := New("keyspace", []string{"nodeIp"}, "username", "password")
 
-	_, ok := cass.(eiffel.Service)
-	assert.True(ok, "Cassandra should implement the eiffel.Service interface")
-
-	_, ok = cass.(repo.Repo)
-	assert.True(ok, "Cassandra should implement the repo.Repo interface")
+	assert.Implements((*eiffel.Service)(nil), cass, "Cassandra should implement the eiffel.Service interface")
+	assert.Implements((*repo.Repo)(nil), cass, "Cassandra should implement the repo.Repo interface")
 }

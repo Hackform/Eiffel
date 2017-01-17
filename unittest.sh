@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-go test $(glide novendor)
+go test -v $(glide novendor)
