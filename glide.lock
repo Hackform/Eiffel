@@ -1,10 +1,12 @@
-hash: 4933e1fdc1b82048ee34a9ea75342e0ce3447b6f3e8f4ef56e5fc75b3a9416da
-updated: 2017-01-16T20:15:45.68913447-08:00
+hash: a1e4398ce03220b392323fbbf0a105f4a03bd13ae849cbb8fe266e3d1da73071
+updated: 2017-01-17T12:02:06.878622597-08:00
 imports:
 - name: github.com/dgrijalva/jwt-go
-  version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
+  version: a601269ab70c205d26370c16f7c81e9017c14e04
 - name: github.com/gocassa/gocassa
-  version: c65a96f07d0a365ecad4dec10b40662fc6c7be1e
+  version: ac7d6d3a2dbe1f0733d1b6357d7bb3f90177b00e
+  subpackages:
+  - reflect
 - name: github.com/gocql/gocql
   version: b6e5fc4b08a956657367e1ab9eb38e65a6ab6abe
   subpackages:
@@ -17,16 +19,12 @@ imports:
   version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
-- name: github.com/hailocab/gocassa
-  version: d3c840df87884c07d5ca67f08ecf62f4877ac79a
-  subpackages:
-  - reflect
 - name: github.com/labstack/echo
   version: 8d504c1b699c757b267255c53b3e5219f9974abc
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
-  version: 9a43ff0d261e0e65594422e9eee08cf301aabbe7
+  version: f72d3c883f8ea180da8f085dd320804c41332ad1
   subpackages:
   - bytes
   - color
@@ -43,21 +41,23 @@ imports:
   subpackages:
   - assert
 - name: github.com/tylerb/graceful
-  version: 4df1190835320af7076dfcf27b3d071fd3612caf
+  version: 0e9129e9c6d47da90dc0c188b26bd7bb1dab53cd
+- name: github.com/valyala/bytebufferpool
+  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
-  version: 3b874956e03f1636d171bda64b130f9135f42cff
+  version: d090d65668a286d9a180d43a19dfdc5dcad8fe88
 - name: golang.org/x/crypto
-  version: 7efbae5d109cb7a2dbc362886213f73c4c55dede
+  version: 91902e332b9d47760598861512d2ae148f94ca58
   subpackages:
   - acme
   - acme/autocert
 - name: golang.org/x/net
-  version: 4971afdc2f162e82d185353533d3cf16188a9f4e
+  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
   subpackages:
   - context
   - context/ctxhttp
 - name: golang.org/x/sys
-  version: d5645953809d8b4752afb2c3224b1f1ad73dfa70
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
 - name: gopkg.in/inf.v0
