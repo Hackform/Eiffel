@@ -3,11 +3,11 @@ package repo
 import ()
 
 type (
-	// Repo interface {
-	// 	Start() bool
-	// 	Shutdown()
-	// 	Transaction() (Tx, error)
-	// }
+	Repo interface {
+		Start() bool
+		Shutdown()
+		// Transaction() (Tx, error)
+	}
 	//
 	// Tx interface {
 	// 	Statement(q.Q) (Stmt, error)

@@ -1,8 +1,26 @@
-hash: faa38f9c44354391a4121aacc5e3b94d4cd4c6d7282f1bc52bbd3b9a7962aa60
-updated: 2017-01-16T15:35:09.495928147-08:00
+hash: 4933e1fdc1b82048ee34a9ea75342e0ce3447b6f3e8f4ef56e5fc75b3a9416da
+updated: 2017-01-16T20:15:45.68913447-08:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
+- name: github.com/gocassa/gocassa
+  version: c65a96f07d0a365ecad4dec10b40662fc6c7be1e
+- name: github.com/gocql/gocql
+  version: b6e5fc4b08a956657367e1ab9eb38e65a6ab6abe
+  subpackages:
+  - internal/lru
+  - internal/murmur
+  - internal/streams
+- name: github.com/golang/snappy
+  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
+- name: github.com/google/btree
+  version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
+- name: github.com/hailocab/go-hostpool
+  version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
+- name: github.com/hailocab/gocassa
+  version: d3c840df87884c07d5ca67f08ecf62f4877ac79a
+  subpackages:
+  - reflect
 - name: github.com/labstack/echo
   version: 8d504c1b699c757b267255c53b3e5219f9974abc
   subpackages:
@@ -18,6 +36,8 @@ imports:
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
+- name: github.com/mitchellh/mapstructure
+  version: bfdb1a85537d60bc7e954e600c250219ea497417
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:
@@ -40,6 +60,8 @@ imports:
   version: d5645953809d8b4752afb2c3224b1f1ad73dfa70
   subpackages:
   - unix
+- name: gopkg.in/inf.v0
+  version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
