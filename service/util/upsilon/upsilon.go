@@ -3,6 +3,7 @@ package upsilon
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/binary"
 	"errors"
 	"github.com/Hackform/Eiffel/service/util/tau"
@@ -67,4 +68,36 @@ func New(time_size, hash_size, random_size int, input ...[]byte) (return_upsilon
 		r:        r,
 		u:        k.Bytes(),
 	}, nil
+}
+
+func (u *Upsilon) Bytes() []byte {
+	return u.u
+}
+
+func (u *Upsilon) Time() []byte {
+	return u.t
+}
+
+func (u *Upsilon) Hash() []byte {
+	return u.h
+}
+
+func (u *Upsilon) Rand() []byte {
+	return u.r
+}
+
+func (u *Upsilon) Base64() string {
+	return base64.StdEncoding.EncodeToString(u.u)
+}
+
+func (u *Upsilon) TimeBase64() string {
+	return base64.StdEncoding.EncodeToString(u.t)
+}
+
+func (u *Upsilon) HashBase64() string {
+	return base64.StdEncoding.EncodeToString(u.h)
+}
+
+func (u *Upsilon) RandBase64() string {
+	return base64.StdEncoding.EncodeToString(u.r)
 }
