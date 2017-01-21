@@ -1,7 +1,6 @@
 package cassandra
 
 import (
-	"errors"
 	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/gocassa/gocassa"
 )
@@ -9,7 +8,9 @@ import (
 type (
 	Cassandra struct {
 		keySpace gocassa.KeySpace
+		space    map[string]gocassa.Table
 		props    connectionProps
+		config   Config
 	}
 
 	connectionProps struct {
@@ -24,9 +25,19 @@ type (
 		kpartition []string
 		kcluster   []string
 	}
+
+	Config map[string]*cassOpts
 )
 
-func New(keyspace string, nodeIps []string, username, password string) *Cassandra {
+func Opts(model interface{}, kpartition, kcluster []string) *cassOpts {
+	return &cassOpts{
+		model:      model,
+		kpartition: kpartition,
+		kcluster:   kcluster,
+	}
+}
+
+func New(keyspace string, nodeIps []string, username, password string, config Config) *Cassandra {
 	return &Cassandra{
 		props: connectionProps{
 			keySpace: keyspace,
@@ -34,6 +45,7 @@ func New(keyspace string, nodeIps []string, username, password string) *Cassandr
 			username: username,
 			password: password,
 		},
+		config: config,
 	}
 }
 
@@ -43,51 +55,36 @@ func (c *Cassandra) Start() bool {
 		return false
 	}
 	c.keySpace = keyspace
+
+	for k, v := range c.config {
+		c.space[k] = c.keySpace.Table(k, v.model, gocassa.Keys{
+			PartitionKeys:     v.kpartition,
+			ClusteringColumns: v.kcluster,
+		})
+	}
 	return true
 }
 
 func (c *Cassandra) Shutdown() {
 }
 
-func (c *Cassandra) Transaction(table string, opts *repo.Opts) (repo.Tx, error) {
-	o, err := parseOpts(opts)
-	if err != nil {
-		return nil, err
-	}
-	return c.keySpace.Table(table, o.model, gocassa.Keys{
-		PartitionKeys:     o.kpartition,
-		ClusteringColumns: o.kcluster,
-	}), nil
+func (c *Cassandra) Transaction() (repo.Tx, error) {
+	return newTx()
 }
 
-func parseOpts(opts *repo.Opts) (*cassOpts, error) {
-	var model interface{}
-	var kpartition, kcluster []string
-	var ok bool
-
-	if model, ok = (*opts)["model"]; !ok {
-		return nil, errors.New("model is not provided")
+type (
+	transaction struct {
 	}
+)
 
-	if _, ok = (*opts)["partition"]; !ok {
-		return nil, errors.New("partition keys not provided")
-	}
+func newTx() (*transaction, error) {
+	return &transaction{}, nil
+}
 
-	if kpartition, ok = ((*opts)["partition"]).([]string); !ok {
-		return nil, errors.New("partition keys are not a []string")
-	}
+func (t *transaction) Commit() error {
+	return nil
+}
 
-	if _, ok = (*opts)["cluster"]; !ok {
-		return nil, errors.New("cluster keys are not a []string")
-	}
-
-	if kcluster, ok = ((*opts)["cluster"]).([]string); ok {
-		return nil, errors.New("cluster keys not provided")
-	}
-
-	return &cassOpts{
-		model:      model,
-		kpartition: kpartition,
-		kcluster:   kcluster,
-	}, nil
+func (t *transaction) Rollback() error {
+	return nil
 }

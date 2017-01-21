@@ -9,8 +9,11 @@ import (
 
 func main() {
 	e := eiffel.New()
+
+	cass := cassandra.New("eiffel_keyspace", []string{"127.0.0.1"}, "eiffel", "tower", cassandra.Config{})
+
 	e.InitService(eiffel.ServiceConfig{
-		"repo": cassandra.New("eiffel_keyspace", []string{"127.0.0.1"}, "eiffel", "tower"),
+		"repo": cass,
 	})
 	e.InitRoute(
 		"/api",
