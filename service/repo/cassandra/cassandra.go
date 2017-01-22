@@ -1,8 +1,19 @@
 package cassandra
 
 import (
+	"errors"
 	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/gocassa/gocassa"
+)
+
+const (
+	setup_table_name = "eiffel_setup"
+	setup_table_pk   = "eiffel_name"
+
+	setup_name    = "hackform.eiffel"
+	setup_version = "v0.1.0"
+
+	user_table_name = "users"
 )
 
 //////////
@@ -37,11 +48,6 @@ type (
 		setup   bool   `cql:"eiffel_setup_complete"`
 		version string `cql:"eiffel_version"`
 	}
-)
-
-const (
-	setup_table_name = "eiffel_setup"
-	setup_table_pk   = "eiffel_name"
 )
 
 func sampleSetupModel() *setupModel {
@@ -106,7 +112,18 @@ func (c *Cassandra) Transaction() (repo.Tx, error) {
 }
 
 func (c *Cassandra) Setup() error {
-	return nil
+	setupObj := &setupModel{}
+	if err := c.space[setup_table_name].Where(gocassa.Eq(setup_table_pk, setup_name)).ReadOne(setupObj); err != nil {
+		return errors.New("database already configured")
+	} else {
+		for _, v := range c.space {
+			if err := v.Create(); err != nil {
+				return err
+			}
+		}
+		c.space[user_table_name].Set(nil)
+		return nil
+	}
 }
 
 /////////////////
