@@ -29,6 +29,10 @@ type (
 	Config map[string]*cassOpts
 )
 
+//////////
+// Opts //
+//////////
+
 func Opts(model interface{}, kpartition, kcluster []string) *cassOpts {
 	return &cassOpts{
 		model:      model,
@@ -36,6 +40,10 @@ func Opts(model interface{}, kpartition, kcluster []string) *cassOpts {
 		kcluster:   kcluster,
 	}
 }
+
+///////////////
+// Cassandra //
+///////////////
 
 func New(keyspace string, nodeIps []string, username, password string, config Config) *Cassandra {
 	return &Cassandra{
@@ -69,16 +77,25 @@ func (c *Cassandra) Shutdown() {
 }
 
 func (c *Cassandra) Transaction() (repo.Tx, error) {
-	return newTx()
+	return newTx(c)
 }
+
+/////////////////
+// Transaction //
+/////////////////
 
 type (
 	transaction struct {
+		c       *Cassandra
+		actions []gocassa.Op
 	}
 )
 
-func newTx() (*transaction, error) {
-	return &transaction{}, nil
+func newTx(c *Cassandra) (*transaction, error) {
+	return &transaction{
+		c:       c,
+		actions: []gocassa.Op{},
+	}, nil
 }
 
 func (t *transaction) Commit() error {

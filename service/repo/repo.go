@@ -14,12 +14,6 @@ type (
 		Rollback() error
 	}
 
-	// Stmt interface {
-	// 	Query(args ...interface{}) ([]*Data, error)
-	// 	QueryOne(args ...interface{}) (*Data, error)
-	// 	Exec(args ...interface{}) error
-	// }
-
 	Data struct {
 		Value interface{}
 	}
