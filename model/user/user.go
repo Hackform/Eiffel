@@ -1,4 +1,4 @@
-package user
+package usermodel
 
 import (
 	// "github.com/Hackform/Eiffel/service/util/upsilon"
@@ -59,18 +59,5 @@ type (
 	auth struct {
 		Level int    `json:"auth_level" cql:"auth_level"`
 		Tags  []byte `json:"auth_tags" cql:"auth_tags"`
-	}
-
-	//////////////
-	// Requests //
-	//////////////
-
-	password struct {
-		Password string `json:"password"`
-	}
-
-	reqNewUser struct {
-		userInfo
-		password
 	}
 )

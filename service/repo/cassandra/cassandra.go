@@ -12,8 +12,6 @@ const (
 
 	setup_name    = "hackform.eiffel"
 	setup_version = "v0.1.0"
-
-	user_table_name = "users"
 )
 
 //////////
@@ -121,7 +119,6 @@ func (c *Cassandra) Setup() error {
 				return err
 			}
 		}
-		c.space[user_table_name].Set(nil)
 		return nil
 	}
 }
