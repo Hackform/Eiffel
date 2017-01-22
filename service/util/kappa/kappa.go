@@ -1,5 +1,9 @@
 package kappa
 
+//////////////////////////
+// Incremented Constant //
+//////////////////////////
+
 type (
 	Kappa struct {
 		value int

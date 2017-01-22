@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Hackform/Eiffel"
-	userRoute "github.com/Hackform/Eiffel/route/users"
+	"github.com/Hackform/Eiffel/route/users"
 	"github.com/Hackform/Eiffel/service/repo/cassandra"
 	"github.com/labstack/echo/middleware"
 )
@@ -18,7 +18,7 @@ func main() {
 	e.InitRoute(
 		"/api",
 		eiffel.RouteConfig{
-			"/users": userRoute.New(),
+			"/users": users.New(),
 		},
 		middleware.Recover(),
 		middleware.Logger(),

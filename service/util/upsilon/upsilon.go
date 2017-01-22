@@ -9,6 +9,10 @@ import (
 	"github.com/Hackform/Eiffel/service/util/tau"
 )
 
+///////////////////////
+// Unique Identifier //
+///////////////////////
+
 type (
 	Upsilon struct {
 		timebits,

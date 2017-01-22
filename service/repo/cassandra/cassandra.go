@@ -57,7 +57,7 @@ func sampleSetupModel() *setupModel {
 ///////////////
 
 type (
-	Cassandra struct {
+	cassandra struct {
 		keySpace gocassa.KeySpace
 		space    map[string]gocassa.Table
 		props    connectionProps
@@ -72,8 +72,8 @@ type (
 	}
 )
 
-func New(keyspace string, nodeIps []string, username, password string, config Config) *Cassandra {
-	return &Cassandra{
+func New(keyspace string, nodeIps []string, username, password string, config Config) *cassandra {
+	return &cassandra{
 		props: connectionProps{
 			keySpace: keyspace,
 			nodeIps:  nodeIps,
@@ -84,7 +84,7 @@ func New(keyspace string, nodeIps []string, username, password string, config Co
 	}
 }
 
-func (c *Cassandra) Start() bool {
+func (c *cassandra) Start() bool {
 	keyspace, err := gocassa.ConnectToKeySpace(c.props.keySpace, c.props.nodeIps, c.props.username, c.props.password)
 	if err != nil {
 		return false
@@ -102,14 +102,14 @@ func (c *Cassandra) Start() bool {
 	return true
 }
 
-func (c *Cassandra) Shutdown() {
+func (c *cassandra) Shutdown() {
 }
 
-func (c *Cassandra) Transaction() (repo.Tx, error) {
+func (c *cassandra) Transaction() (repo.Tx, error) {
 	return newTx(c)
 }
 
-func (c *Cassandra) Setup() error {
+func (c *cassandra) Setup() error {
 	setupObj := &setupModel{}
 	if err := c.space[setup_table_name].Where(gocassa.Eq(setup_table_pk, setup_name)).ReadOne(setupObj); err != nil {
 		return errors.New("database already configured")
@@ -129,12 +129,12 @@ func (c *Cassandra) Setup() error {
 
 type (
 	transaction struct {
-		c       *Cassandra
+		c       *cassandra
 		actions []gocassa.Op
 	}
 )
 
-func newTx(c *Cassandra) (*transaction, error) {
+func newTx(c *cassandra) (*transaction, error) {
 	return &transaction{
 		c:       c,
 		actions: []gocassa.Op{},
