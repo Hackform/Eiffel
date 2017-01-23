@@ -1,8 +1,8 @@
 package cassandra
 
 import (
-	"errors"
 	"github.com/Hackform/Eiffel/service/repo"
+	"github.com/gocql/gocql"
 )
 
 const (
@@ -57,10 +57,9 @@ func sampleSetupModel() *setupModel {
 
 type (
 	cassandra struct {
-		keySpace gocassa.KeySpace
-		space    map[string]gocassa.Table
-		props    connectionProps
-		config   Config
+		session *gocql.Session
+		props   connectionProps
+		config  Config
 	}
 
 	connectionProps struct {
@@ -83,25 +82,28 @@ func New(keyspace string, nodeIps []string, username, password string, config Co
 	}
 }
 
-func (c *cassandra) Start() bool {
-	keyspace, err := gocassa.ConnectToKeySpace(c.props.keySpace, c.props.nodeIps, c.props.username, c.props.password)
-	if err != nil {
-		return false
+func (c *cassandra) Start() error {
+	cluster := gocql.NewCluster(c.props.nodeIps...)
+	cluster.Keyspace = c.props.keySpace
+	cluster.Consistency = gocql.Quorum
+	cluster.Authenticator = gocql.PasswordAuthenticator{
+		Username: c.props.username,
+		Password: c.props.password,
 	}
-	c.keySpace = keyspace
+
+	s, err := cluster.CreateSession()
+	if err != nil {
+		return err
+	}
+	c.session = s
 
 	c.config[setup_table_name] = Opts(sampleSetupModel(), []string{setup_table_pk}, nil)
 
-	for k, v := range c.config {
-		c.space[k] = c.keySpace.Table(k, v.model, gocassa.Keys{
-			PartitionKeys:     v.kpartition,
-			ClusteringColumns: v.kcluster,
-		})
-	}
-	return true
+	return nil
 }
 
 func (c *cassandra) Shutdown() {
+	c.session.Close()
 }
 
 func (c *cassandra) Transaction() (repo.Tx, error) {
@@ -109,17 +111,7 @@ func (c *cassandra) Transaction() (repo.Tx, error) {
 }
 
 func (c *cassandra) Setup() error {
-	setupObj := &setupModel{}
-	if err := c.space[setup_table_name].Where(gocassa.Eq(setup_table_pk, setup_name)).ReadOne(setupObj); err != nil {
-		return errors.New("database already configured")
-	} else {
-		for _, v := range c.space {
-			if err := v.CreateIfNotExist(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
+	return nil
 }
 
 /////////////////
@@ -128,15 +120,13 @@ func (c *cassandra) Setup() error {
 
 type (
 	transaction struct {
-		c       *cassandra
-		actions gocassa.Op
+		c *cassandra
 	}
 )
 
 func newTx(c *cassandra) (*transaction, error) {
 	return &transaction{
-		c:       c,
-		actions: nil,
+		c: c,
 	}, nil
 }
 
@@ -149,10 +139,5 @@ func (t *transaction) Rollback() error {
 }
 
 func (t *transaction) Insert(sector string, d *repo.Data) error {
-	if t.actions == nil {
-		t.actions = t.c.space[sector].Set(d.Value)
-	} else {
-		t.actions = t.actions.Add(t.c.space[sector].Set(d.Value))
-	}
 	return nil
 }

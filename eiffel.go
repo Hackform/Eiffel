@@ -29,8 +29,8 @@ func New() *Eiffel {
 func (e *Eiffel) Start(url string) {
 	defer e.Shutdown()
 	for n, i := range e.serviceList {
-		if !e.services[i].Start() {
-			fmt.Println(i, "service failed")
+		if err := e.services[i].Start(); err != nil {
+			fmt.Println(err)
 			return
 		}
 		e.servicesActive = n
@@ -95,7 +95,7 @@ func (e *Eiffel) Shutdown() {
 
 type (
 	Service interface {
-		Start() bool
+		Start() error
 		Shutdown()
 	}
 
