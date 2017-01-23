@@ -3,7 +3,6 @@ package cassandra
 import (
 	"errors"
 	"github.com/Hackform/Eiffel/service/repo"
-	"github.com/gocassa/gocassa"
 )
 
 const (
@@ -19,17 +18,17 @@ const (
 //////////
 
 type (
-	cassOpts struct {
+	CassOpts struct {
 		model      interface{}
 		kpartition []string
 		kcluster   []string
 	}
 
-	Config map[string]*cassOpts
+	Config map[string]*CassOpts
 )
 
-func Opts(model interface{}, kpartition, kcluster []string) *cassOpts {
-	return &cassOpts{
+func Opts(model interface{}, kpartition, kcluster []string) *CassOpts {
+	return &CassOpts{
 		model:      model,
 		kpartition: kpartition,
 		kcluster:   kcluster,
@@ -115,7 +114,7 @@ func (c *cassandra) Setup() error {
 		return errors.New("database already configured")
 	} else {
 		for _, v := range c.space {
-			if err := v.Create(); err != nil {
+			if err := v.CreateIfNotExist(); err != nil {
 				return err
 			}
 		}
@@ -130,14 +129,14 @@ func (c *cassandra) Setup() error {
 type (
 	transaction struct {
 		c       *cassandra
-		actions []gocassa.Op
+		actions gocassa.Op
 	}
 )
 
 func newTx(c *cassandra) (*transaction, error) {
 	return &transaction{
 		c:       c,
-		actions: []gocassa.Op{},
+		actions: nil,
 	}, nil
 }
 
@@ -146,5 +145,14 @@ func (t *transaction) Commit() error {
 }
 
 func (t *transaction) Rollback() error {
+	return nil
+}
+
+func (t *transaction) Insert(sector string, d *repo.Data) error {
+	if t.actions == nil {
+		t.actions = t.c.space[sector].Set(d.Value)
+	} else {
+		t.actions = t.actions.Add(t.c.space[sector].Set(d.Value))
+	}
 	return nil
 }

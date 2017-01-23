@@ -24,6 +24,10 @@ func Admin() int {
 	return admin
 }
 
+func SuperUser() int {
+	return superuser
+}
+
 func IsPrivileged(k int) bool {
 	return k < mod
 }

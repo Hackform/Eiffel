@@ -60,16 +60,8 @@ type (
 	}
 )
 
-func Sample() *UserModel {
+func NewModel() *UserModel {
 	return &UserModel{}
-}
-
-func PartitionKeys() []string {
-	return []string{"id"}
-}
-
-func ClusterKeys() []string {
-	return nil
 }
 
 func New(username, password, email, first_name, last_name string, auth_level int) (*UserModel, error) {
@@ -125,4 +117,8 @@ func NewUser(username, password, email, first_name, last_name string) (*UserMode
 
 func NewAdmin(username, password, email, first_name, last_name string) (*UserModel, error) {
 	return New(username, password, email, first_name, last_name, rho.Admin())
+}
+
+func NewSuperUser(username, password string) (*UserModel, error) {
+	return New(username, password, "", "", "", rho.SuperUser())
 }

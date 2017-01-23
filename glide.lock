@@ -1,12 +1,8 @@
-hash: cf6be7a5a3f0f1cb14f00797bbc20ef10fd27fcc1430543060f73ab8f3669be7
-updated: 2017-01-21T22:34:17.568750735-08:00
+hash: 88c1adba93b614ea79e757a675e147976c86906dfc05913f5b742c74fad0274c
+updated: 2017-01-23T00:00:59.85184139-08:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: a601269ab70c205d26370c16f7c81e9017c14e04
-- name: github.com/gocassa/gocassa
-  version: ac7d6d3a2dbe1f0733d1b6357d7bb3f90177b00e
-  subpackages:
-  - reflect
 - name: github.com/gocql/gocql
   version: b6e5fc4b08a956657367e1ab9eb38e65a6ab6abe
   subpackages:
@@ -15,8 +11,6 @@ imports:
   - internal/streams
 - name: github.com/golang/snappy
   version: 7db9049039a047d955fe8c19b83c8ff5abd765c7
-- name: github.com/google/btree
-  version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/labstack/echo
@@ -34,8 +28,6 @@ imports:
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
-- name: github.com/mitchellh/mapstructure
-  version: ed105d635dfa9ea7133f7c79f1eb36203fc3a156
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:
@@ -51,6 +43,8 @@ imports:
   subpackages:
   - acme
   - acme/autocert
+  - pbkdf2
+  - scrypt
 - name: golang.org/x/net
   version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
   subpackages:
