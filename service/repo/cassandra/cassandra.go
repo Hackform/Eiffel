@@ -111,6 +111,9 @@ func (c *cassandra) Transaction() (repo.Tx, error) {
 }
 
 func (c *cassandra) Setup() error {
+
+	// create tables
+
 	return nil
 }
 
