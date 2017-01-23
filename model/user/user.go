@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/Hackform/Eiffel/service/util/eta"
+	"github.com/Hackform/Eiffel/service/util/rho"
 	"github.com/Hackform/Eiffel/service/util/upsilon"
 	"github.com/gocql/gocql"
 	"time"
@@ -12,7 +13,6 @@ type (
 		userId
 		userInfo
 		passhash
-		auth
 	}
 
 	userId struct {
@@ -30,12 +30,18 @@ type (
 
 	userInfoPub struct {
 		uname
+		auth
 		name
 		props
 	}
 
 	uname struct {
 		Username string `json:"username" cql:"username"`
+	}
+
+	auth struct {
+		Level int    `json:"auth_level" cql:"auth_level"`
+		Tags  []byte `json:"auth_tags" cql:"auth_tags"`
 	}
 
 	name struct {
@@ -52,14 +58,21 @@ type (
 		Salt    []byte `cql:"pass_salt"`
 		Version int    `cql:"pass_version"`
 	}
-
-	auth struct {
-		Level int    `json:"auth_level" cql:"auth_level"`
-		Tags  []byte `json:"auth_tags" cql:"auth_tags"`
-	}
 )
 
-func New(username, password, email, first_name, last_name string) (*UserModel, error) {
+func Sample() *UserModel {
+	return &UserModel{}
+}
+
+func PartitionKeys() []string {
+	return []string{"id"}
+}
+
+func ClusterKeys() []string {
+	return nil
+}
+
+func New(username, password, email, first_name, last_name string, auth_level int) (*UserModel, error) {
 	id, err := upsilon.New(32, 0, 32)
 	if err != nil {
 		return nil, err
@@ -85,6 +98,10 @@ func New(username, password, email, first_name, last_name string) (*UserModel, e
 				uname: uname{
 					Username: username,
 				},
+				auth: auth{
+					Level: auth_level,
+					Tags:  []byte{},
+				},
 				name: name{
 					First: first_name,
 					Last:  last_name,
@@ -99,9 +116,13 @@ func New(username, password, email, first_name, last_name string) (*UserModel, e
 			Salt:    s,
 			Version: v,
 		},
-		auth: auth{
-			Level: 0,
-			Tags:  []byte{},
-		},
 	}, nil
+}
+
+func NewUser(username, password, email, first_name, last_name string) (*UserModel, error) {
+	return New(username, password, email, first_name, last_name, rho.User())
+}
+
+func NewAdmin(username, password, email, first_name, last_name string) (*UserModel, error) {
+	return New(username, password, email, first_name, last_name, rho.Admin())
 }
