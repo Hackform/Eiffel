@@ -11,9 +11,7 @@ type (
 	}
 
 	Tx interface {
-		Commit() error
-		Rollback() error
-		Insert(string, *Data) error
+		Adapter() string
 	}
 
 	Data struct {
