@@ -15,6 +15,17 @@ func Test_Cassandra_New(t *testing.T) {
 	assert.Implements((*repo.Repo)(nil), cass, "Cassandra should implement the repo.Repo interface")
 }
 
+func Test_Cassandra_Transaction(t *testing.T) {
+	assert := assert.New(t)
+	cass := New("keyspace", []string{"nodeIp"}, "username", "password")
+
+	tx, err := cass.Transaction()
+	assert.Nil(err, "Transaction should be valid")
+	assert.Implements((*repo.Tx)(nil), tx, "Cassandra Transaction should implement the repo.Tx interface")
+
+	assert.Equal(AdapterId, tx.Adapter(), "should return back adapter id")
+}
+
 func Test_BuilderTable(t *testing.T) {
 	assert := assert.New(t)
 	v, err := BuilderTable("table_1", Fields{

@@ -14,7 +14,7 @@ const (
 ///////////////
 
 type (
-	Cassandra struct {
+	cassandra struct {
 		session *gocql.Session
 		props   connectionProps
 	}
@@ -27,8 +27,8 @@ type (
 	}
 )
 
-func New(keyspace string, nodeIps []string, username, password string) *Cassandra {
-	return &Cassandra{
+func New(keyspace string, nodeIps []string, username, password string) *cassandra {
+	return &cassandra{
 		props: connectionProps{
 			keySpace: keyspace,
 			nodeIps:  nodeIps,
@@ -38,7 +38,7 @@ func New(keyspace string, nodeIps []string, username, password string) *Cassandr
 	}
 }
 
-func (c *Cassandra) Start() error {
+func (c *cassandra) Start() error {
 	cluster := gocql.NewCluster(c.props.nodeIps...)
 	cluster.Keyspace = c.props.keySpace
 	cluster.Consistency = gocql.Quorum
@@ -56,19 +56,12 @@ func (c *Cassandra) Start() error {
 	return nil
 }
 
-func (c *Cassandra) Shutdown() {
+func (c *cassandra) Shutdown() {
 	c.session.Close()
 }
 
-func (c *Cassandra) Transaction() (repo.Tx, error) {
+func (c *cassandra) Transaction() (repo.Tx, error) {
 	return newTx(c)
-}
-
-func (c *Cassandra) Setup() error {
-
-	// create tables
-
-	return nil
 }
 
 /////////////////
@@ -77,13 +70,13 @@ func (c *Cassandra) Setup() error {
 
 type (
 	Tx struct {
-		C *Cassandra
+		S *gocql.Session
 	}
 )
 
-func newTx(c *Cassandra) (*Tx, error) {
+func newTx(c *cassandra) (*Tx, error) {
 	return &Tx{
-		C: c,
+		S: c.session,
 	}, nil
 }
 

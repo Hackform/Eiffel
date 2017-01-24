@@ -11,9 +11,9 @@ type (
 	Fields map[string]string
 )
 
-func BuilderTable(name string, fields Fields, partitionKey, clusterKey []string) (string, error) {
-	if len(name) < 1 {
-		return "", errors.New("name must be defined")
+func BuilderTable(sector string, fields Fields, partitionKey, clusterKey []string) (string, error) {
+	if len(sector) < 1 {
+		return "", errors.New("sector must be defined")
 	}
 	if len(fields) < 1 {
 		return "", errors.New("there must be at least one field")
@@ -39,5 +39,5 @@ func BuilderTable(name string, fields Fields, partitionKey, clusterKey []string)
 		keys = append(keys, clusterKey...)
 	}
 
-	return fmt.Sprintf("CREATE TABLE %s (%s, PRIMARY KEY (%s))", name, strings.Join(b, ", "), strings.Join(keys, ", ")), nil
+	return fmt.Sprintf("CREATE TABLE %s (%s, PRIMARY KEY (%s))", sector, strings.Join(b, ", "), strings.Join(keys, ", ")), nil
 }

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-go test -v $(glide novendor)
+go test -cover $(glide novendor)

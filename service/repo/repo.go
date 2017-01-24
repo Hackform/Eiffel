@@ -7,7 +7,6 @@ type (
 		Start() error
 		Shutdown()
 		Transaction() (Tx, error)
-		Setup() error
 	}
 
 	Tx interface {

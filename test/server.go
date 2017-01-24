@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/Hackform/Eiffel"
-	"github.com/Hackform/Eiffel/model/user"
 	"github.com/Hackform/Eiffel/route/users"
 	"github.com/Hackform/Eiffel/service/repo/cassandra"
 	"github.com/labstack/echo/middleware"
@@ -11,9 +10,7 @@ import (
 func main() {
 	e := eiffel.New()
 
-	r := cassandra.New("eiffel_keyspace", []string{"127.0.0.1"}, "eiffel", "tower", cassandra.Config{
-		"users": user.CassOpts(),
-	})
+	r := cassandra.New("eiffel_keyspace", []string{"127.0.0.1"}, "eiffel", "tower")
 
 	e.InitService(eiffel.ServiceConfig{
 		"repo": r,
