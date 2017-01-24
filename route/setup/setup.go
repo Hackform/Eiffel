@@ -4,6 +4,7 @@ import (
 	setupModel "github.com/Hackform/Eiffel/model/setup"
 	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/labstack/echo"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -39,6 +40,10 @@ func New(repo repo.Repo) *setup {
 
 func (r *setup) Register(g *echo.Group) {
 	g.POST("/", func(c echo.Context) error {
+		log := log.WithFields(log.Fields{
+			"module": "setup router",
+		})
+
 		if setup_complete {
 			return c.JSON(http.StatusGone, resSetup{
 				Message: "Setup already complete",
@@ -49,8 +54,9 @@ func (r *setup) Register(g *echo.Group) {
 		var err error
 
 		if t, err = r.repo.Transaction(); err != nil {
+			log.Errorf("transaction: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed setup process: transaction error",
+				Message: "Failed setup process: transaction",
 			})
 		}
 
@@ -63,8 +69,9 @@ func (r *setup) Register(g *echo.Group) {
 		}
 
 		if err = setupModel.Create(t); err != nil {
+			log.Errorf("create table: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed setup process: create setup error",
+				Message: "Failed setup process: create table",
 			})
 		}
 

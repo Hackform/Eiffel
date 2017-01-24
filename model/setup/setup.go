@@ -8,9 +8,9 @@ import (
 
 type (
 	SetupModel struct {
-		Name    string `cql:"eiffel_name"`
-		Setup   bool   `cql:"eiffel_setup_complete"`
-		Version string `cql:"eiffel_version"`
+		Name    string `cql:"name"`
+		Setup   bool   `cql:"setup_complete"`
+		Version string `cql:"version"`
 	}
 )
 
@@ -33,5 +33,14 @@ func Select(t repo.Tx) (*SetupModel, error) {
 		return cassSelect(t.(*cassandra.Tx))
 	default:
 		return nil, errors.New("Repo adapter not found")
+	}
+}
+
+func Insert(t repo.Tx) error {
+	switch t.Adapter() {
+	case cassandra.AdapterId:
+		return cassInsert(t.(*cassandra.Tx))
+	default:
+		return errors.New("Repo adapter not found")
 	}
 }
