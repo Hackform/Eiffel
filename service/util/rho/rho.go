@@ -5,29 +5,29 @@ package rho
 //////////
 
 const (
-	root       = 1
-	superuser  = 8
-	admin      = 16
-	maintainer = 32
-	mod        = 128
-	auser      = 176
-	user       = 192
-	apublic    = 240
-	public     = 255
+	root       uint8 = 1
+	superuser  uint8 = 8
+	admin      uint8 = 16
+	maintainer uint8 = 32
+	mod        uint8 = 128
+	auser      uint8 = 176
+	user       uint8 = 192
+	apublic    uint8 = 240
+	public     uint8 = 255
 )
 
-func User() int {
+func User() uint8 {
 	return user
 }
 
-func Admin() int {
+func Admin() uint8 {
 	return admin
 }
 
-func SuperUser() int {
+func SuperUser() uint8 {
 	return superuser
 }
 
-func IsPrivileged(k int) bool {
+func IsPrivileged(k uint8) bool {
 	return k < mod
 }

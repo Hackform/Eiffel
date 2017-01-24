@@ -1,6 +1,9 @@
 package user
 
 import (
+	"errors"
+	"github.com/Hackform/Eiffel/service/repo"
+	"github.com/Hackform/Eiffel/service/repo/cassandra"
 	"github.com/Hackform/Eiffel/service/util/eta"
 	"github.com/Hackform/Eiffel/service/util/rho"
 	"github.com/Hackform/Eiffel/service/util/upsilon"
@@ -40,7 +43,7 @@ type (
 	}
 
 	auth struct {
-		Level int    `json:"auth_level" cql:"auth_level"`
+		Level uint8  `json:"auth_level" cql:"auth_level"`
 		Tags  []byte `json:"auth_tags" cql:"auth_tags"`
 	}
 
@@ -64,8 +67,8 @@ func NewModel() *UserModel {
 	return &UserModel{}
 }
 
-func New(username, password, email, first_name, last_name string, auth_level int) (*UserModel, error) {
-	id, err := upsilon.New(32, 0, 32)
+func New(username, password, email, first_name, last_name string, auth_level uint8) (*UserModel, error) {
+	id, err := upsilon.New(8, 0, 8)
 	if err != nil {
 		return nil, err
 	}
@@ -121,4 +124,31 @@ func NewAdmin(username, password, email, first_name, last_name string) (*UserMod
 
 func NewSuperUser(username, password string) (*UserModel, error) {
 	return New(username, password, "", "", "", rho.SuperUser())
+}
+
+func Create(t repo.Tx) error {
+	switch t.Adapter() {
+	case cassandra.AdapterId:
+		return cassCreate(t.(*cassandra.Tx))
+	default:
+		return errors.New("Repo adapter not found")
+	}
+}
+
+func Select(t repo.Tx) (*UserModel, error) {
+	switch t.Adapter() {
+	case cassandra.AdapterId:
+		return cassSelect(t.(*cassandra.Tx))
+	default:
+		return nil, errors.New("Repo adapter not found")
+	}
+}
+
+func Insert(t repo.Tx, u *UserModel) error {
+	switch t.Adapter() {
+	case cassandra.AdapterId:
+		return cassInsert(t.(*cassandra.Tx), u)
+	default:
+		return errors.New("Repo adapter not found")
+	}
 }
