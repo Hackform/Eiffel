@@ -1,16 +1,17 @@
-package setup
+package setuproute
 
 import (
-	setupModel "github.com/Hackform/Eiffel/model/setup"
+	"github.com/Hackform/Eiffel"
+	"github.com/Hackform/Eiffel/model/setup"
 	"github.com/Hackform/Eiffel/model/user"
 	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/labstack/echo"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type (
-	setup struct {
+	setuproute struct {
 		repo repo.Repo
 	}
 
@@ -25,124 +26,119 @@ type (
 )
 
 const (
-	username_length = 1
-	password_length = 8
+	usernameLength = 1
+	passwordLength = 8
 )
 
 var (
-	setup_complete = false
+	setupComplete = false
+
+	log = logrus.WithFields(logrus.Fields{
+		"module": "setup router",
+	})
 )
 
-func New(repo repo.Repo) *setup {
-	return &setup{
+// New creates a new setup router
+func New(repo repo.Repo) eiffel.Route {
+	return &setuproute{
 		repo: repo,
 	}
 }
 
-func (r *setup) Register(g *echo.Group) {
+func (r *setuproute) Register(g *echo.Group) {
 	g.POST("/", func(c echo.Context) error {
-		log := log.WithFields(log.Fields{
-			"module": "setup router",
-		})
-
 		// check if setup already cached and completed
-		if setup_complete {
+		if setupComplete {
 			return c.JSON(http.StatusGone, resSetup{
 				Message: "Setup already complete",
 			})
 		}
 
+		var err error
+
 		// acquire transaction
 		var tx repo.Tx
-		if t, err := r.repo.Transaction(); err != nil {
+		if tx, err = r.repo.Transaction(); err != nil {
 			log.Errorf("transaction: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed setup process: transaction",
 			})
-		} else {
-			tx = t
 		}
 
 		// attempt to select setup
-		if k, err := setupModel.Select(tx); err == nil && k.Setup {
-			setup_complete = true
+		var k *setup.Model
+		if k, err = setup.Select(tx); err == nil && k.Setup {
+			setupComplete = true
 			return c.JSON(http.StatusGone, resSetup{
 				Message: "Setup already complete",
 			})
-		} else {
-			log.Info("Begin setup process")
 		}
+
+		log.Info("Begin setup process")
 
 		// check request validity
 		req := &reqSetup{}
-		if err := c.Bind(req); err != nil {
+		if err = c.Bind(req); err != nil {
 			return c.JSON(http.StatusBadRequest, resSetup{
 				Message: "Failed to provide valid setup config",
 			})
 		}
-		if len(req.username) < username_length {
+		if len(req.username) < usernameLength {
 			return c.JSON(http.StatusBadRequest, resSetup{
 				Message: "No username provided",
 			})
 		}
-		if len(req.password) < password_length {
+		if len(req.password) < passwordLength {
 			return c.JSON(http.StatusBadRequest, resSetup{
 				Message: "Min password length 8",
 			})
 		}
 
 		// create user
-		var newUser *user.UserModel
-		if u, err := user.NewSuperUser(req.username, req.password); err != nil {
+		var newUser *user.Model
+		if newUser, err = user.NewSuperUser(req.username, req.password); err != nil {
 			log.Errorf("Create new user: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed to create new user",
 			})
-		} else {
-			newUser = u
 		}
-
 		log.Info("Begin database initialization")
 
 		// create setup table
-		if err := setupModel.Create(tx); err != nil {
+		if err = setup.Create(tx); err != nil {
 			log.Errorf("Create setup table: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed setup process: create setup table",
 			})
-		} else {
-			log.Info("Setup table created")
 		}
+		log.Info("Setup table created")
 
 		// create user table
-		if err := user.Create(tx); err != nil {
+		if err = user.Create(tx); err != nil {
 			log.Errorf("Create user table: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed setup process: create user table",
 			})
-		} else {
-			log.Info("User table created")
 		}
+		log.Info("User table created")
 
 		// insert new user
-		if err := user.Insert(tx, newUser); err != nil {
+		if err = user.Insert(tx, newUser); err != nil {
 			log.Errorf("Insert new user: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed setup process: insert new user",
 			})
-		} else {
-			log.Infof("New superuser %s inserted", newUser.Username)
 		}
+		log.Infof("New superuser %s inserted", newUser.Username)
 
 		// insert setup table complete
-		if err := setupModel.Insert(tx); err != nil {
+		if err = setup.Insert(tx); err != nil {
 			log.Errorf("Insert setup complete: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed setup process: insert setup complete",
 			})
-		} else {
-			log.Info("Setup complete")
 		}
+		log.Info("Setup complete")
 
 		return c.JSON(http.StatusOK, resSetup{
 			Message: "Setup complete",

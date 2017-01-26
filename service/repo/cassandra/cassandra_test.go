@@ -23,7 +23,7 @@ func Test_Cassandra_Transaction(t *testing.T) {
 	assert.Nil(err, "Transaction should be valid")
 	assert.Implements((*repo.Tx)(nil), tx, "Cassandra Transaction should implement the repo.Tx interface")
 
-	assert.Equal(AdapterId, tx.Adapter(), "should return back adapter id")
+	assert.Equal(AdapterID, tx.Adapter(), "should return back adapter id")
 }
 
 func Test_BuilderTable(t *testing.T) {

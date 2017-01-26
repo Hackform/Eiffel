@@ -8,9 +8,11 @@ import (
 )
 
 type (
+	// Fields is a map of db model fields to cassandra data types
 	Fields map[string]string
 )
 
+// BuilderTable creates a new cql string to create a table
 func BuilderTable(sector string, fields Fields, partitionKey, clusterKey []string) (string, error) {
 	if len(sector) < 1 {
 		return "", errors.New("sector must be defined")

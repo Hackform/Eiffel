@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	table_name    = "eiffel_setup"
-	setup_name    = "hackform.eiffel"
-	setup_version = "v0.1.0"
+	tableName    = "eiffel_setup"
+	setupName    = "hackform.eiffel"
+	setupVersion = "v0.1.0"
 )
 
 func cassCreate(t *cassandra.Tx) error {
-	if err := t.S.Query(cassandra.BuilderTable(table_name, cassandra.Fields{
+	if err := t.S.Query(cassandra.BuilderTable(tableName, cassandra.Fields{
 		"eiffel_name":           "varchar",
 		"eiffel_setup_complete": "boolean",
 		"eiffel_version":        "varchar",
@@ -22,10 +22,10 @@ func cassCreate(t *cassandra.Tx) error {
 	return nil
 }
 
-func cassSelect(t *cassandra.Tx) (*SetupModel, error) {
-	k := SetupModel{}
+func cassSelect(t *cassandra.Tx) (*Model, error) {
+	k := Model{}
 	if err := t.S.Query(`SELECT name, setup_complete, version FROM eiffel_setup WHERE eiffel_name = ? LIMIT 1`,
-		setup_name).Scan(&k.Name, &k.Setup, &k.Version); err != nil {
+		setupName).Scan(&k.Name, &k.Setup, &k.Version); err != nil {
 		return nil, errors.New("Unable to get setup table")
 	}
 	return &k, nil
@@ -33,7 +33,7 @@ func cassSelect(t *cassandra.Tx) (*SetupModel, error) {
 
 func cassInsert(t *cassandra.Tx) error {
 	if err := t.S.Query(`INSERT INTO eiffel_setup (name, setup_complete, version) VALUES (?, ?, ?)`,
-		setup_name, true, setup_version).Exec(); err != nil {
+		setupName, true, setupVersion).Exec(); err != nil {
 		return errors.New("Unable to insert setup complete")
 	}
 	return nil

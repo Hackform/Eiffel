@@ -12,14 +12,15 @@ import (
 )
 
 type (
-	UserModel struct {
-		userId
+	// Model defines a user
+	Model struct {
+		userID
 		userInfo
 		passhash
 	}
 
-	userId struct {
-		Id gocql.UUID `json:"id" cql:"id"`
+	userID struct {
+		ID gocql.UUID `json:"id" cql:"id"`
 	}
 
 	userInfo struct {
@@ -63,11 +64,13 @@ type (
 	}
 )
 
-func NewModel() *UserModel {
-	return &UserModel{}
+// NewModel creates a new Model
+func NewModel() *Model {
+	return &Model{}
 }
 
-func New(username, password, email, first_name, last_name string, auth_level uint8) (*UserModel, error) {
+// New creates a new Model from arguments
+func New(username, password, email, firstName, lastName string, authLevel uint8) (*Model, error) {
 	id, err := upsilon.New(8, 0, 8)
 	if err != nil {
 		return nil, err
@@ -81,9 +84,9 @@ func New(username, password, email, first_name, last_name string, auth_level uin
 	if err != nil {
 		return nil, err
 	}
-	return &UserModel{
-		userId: userId{
-			Id: uid,
+	return &Model{
+		userID: userID{
+			ID: uid,
 		},
 		userInfo: userInfo{
 			em: em{
@@ -94,12 +97,12 @@ func New(username, password, email, first_name, last_name string, auth_level uin
 					Username: username,
 				},
 				auth: auth{
-					Level: auth_level,
+					Level: authLevel,
 					Tags:  []byte{},
 				},
 				name: name{
-					First: first_name,
-					Last:  last_name,
+					First: firstName,
+					Last:  lastName,
 				},
 				props: props{
 					Date: t,
@@ -114,39 +117,45 @@ func New(username, password, email, first_name, last_name string, auth_level uin
 	}, nil
 }
 
-func NewUser(username, password, email, first_name, last_name string) (*UserModel, error) {
-	return New(username, password, email, first_name, last_name, rho.User())
+// NewUser creates a new User with default access level
+func NewUser(username, password, email, firstName, lastName string) (*Model, error) {
+	return New(username, password, email, firstName, lastName, rho.User())
 }
 
-func NewAdmin(username, password, email, first_name, last_name string) (*UserModel, error) {
-	return New(username, password, email, first_name, last_name, rho.Admin())
+// NewAdmin creates a new Administrator
+func NewAdmin(username, password, email, firstName, lastName string) (*Model, error) {
+	return New(username, password, email, firstName, lastName, rho.Admin())
 }
 
-func NewSuperUser(username, password string) (*UserModel, error) {
+// NewSuperUser creates a new superuser
+func NewSuperUser(username, password string) (*Model, error) {
 	return New(username, password, "", "", "", rho.SuperUser())
 }
 
+// Create creates a new User Table on the cassandra cluster
 func Create(t repo.Tx) error {
 	switch t.Adapter() {
-	case cassandra.AdapterId:
+	case cassandra.AdapterID:
 		return cassCreate(t.(*cassandra.Tx))
 	default:
 		return errors.New("Repo adapter not found")
 	}
 }
 
-func Select(t repo.Tx) (*UserModel, error) {
+// Select finds a given User based on ID
+func Select(t repo.Tx, u *upsilon.Upsilon) (*Model, error) {
 	switch t.Adapter() {
-	case cassandra.AdapterId:
-		return cassSelect(t.(*cassandra.Tx))
+	case cassandra.AdapterID:
+		return cassSelect(t.(*cassandra.Tx), u)
 	default:
 		return nil, errors.New("Repo adapter not found")
 	}
 }
 
-func Insert(t repo.Tx, u *UserModel) error {
+// Insert creates a given User
+func Insert(t repo.Tx, u *Model) error {
 	switch t.Adapter() {
-	case cassandra.AdapterId:
+	case cassandra.AdapterID:
 		return cassInsert(t.(*cassandra.Tx), u)
 	default:
 		return errors.New("Repo adapter not found")

@@ -16,18 +16,22 @@ const (
 	public     uint8 = 255
 )
 
+// User returns the user rank
 func User() uint8 {
 	return user
 }
 
+// Admin returns the admin rank
 func Admin() uint8 {
 	return admin
 }
 
+// SuperUser returns the superuser rank
 func SuperUser() uint8 {
 	return superuser
 }
 
+// IsPrivileged returns whether a rank is a privileged rank
 func IsPrivileged(k uint8) bool {
 	return k < mod
 }

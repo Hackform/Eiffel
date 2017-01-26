@@ -13,29 +13,30 @@ import (
 type (
 	config struct {
 		version,
-		hash_length,
-		salt_length,
-		work_factor,
-		mem_blocksize,
-		parallel_factor int
+		hashLength,
+		saltLength,
+		workFactor,
+		memBlocksize,
+		parallelFactor int
 	}
 )
 
 const (
+	// Latest holds the value of the latest version of eta
 	Latest = 1
 )
 
 var (
 	v001 = &config{
-		version:         1,
-		hash_length:     64,
-		salt_length:     32,
-		work_factor:     16384,
-		mem_blocksize:   8,
-		parallel_factor: 1,
+		version:        1,
+		hashLength:     64,
+		saltLength:     32,
+		workFactor:     16384,
+		memBlocksize:   8,
+		parallelFactor: 1,
 	}
 
-	latest_config = v001
+	latestConfig = v001
 )
 
 func newConfig(version int) *config {
@@ -43,7 +44,7 @@ func newConfig(version int) *config {
 	case v001.version:
 		return v001
 	default:
-		return latest_config
+		return latestConfig
 	}
 }
 
@@ -51,20 +52,22 @@ func (c *config) Version() int {
 	return c.version
 }
 
+// Hash returns a new hash and salt for a given password
 func Hash(password string, version int) (h, s []byte, v int, e error) {
 	c := newConfig(version)
-	salt := make([]byte, c.salt_length)
+	salt := make([]byte, c.saltLength)
 	_, err := rand.Read(salt)
 	if err != nil {
 		return []byte{}, salt, 0, err
 	}
-	hash, err := scrypt.Key([]byte(password), salt, c.work_factor, c.mem_blocksize, c.parallel_factor, c.hash_length)
+	hash, err := scrypt.Key([]byte(password), salt, c.workFactor, c.memBlocksize, c.parallelFactor, c.hashLength)
 	return hash, salt, c.version, err
 }
 
+// Verify checks to see if the hash of the given password and salt matches the provided passhash
 func Verify(password string, salt, passhash []byte, version int) bool {
 	c := newConfig(version)
-	dk, err := scrypt.Key([]byte(password), salt, c.work_factor, c.mem_blocksize, c.parallel_factor, c.hash_length)
+	dk, err := scrypt.Key([]byte(password), salt, c.workFactor, c.memBlocksize, c.parallelFactor, c.hashLength)
 	if err != nil {
 		return false
 	}

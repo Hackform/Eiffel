@@ -6,15 +6,16 @@ import (
 )
 
 const (
-	AdapterId = "cassandra"
+	// AdapterID is the unique string identifying the type of each transaction
+	AdapterID = "cassandra"
 )
 
 ///////////////
-// Cassandra //
+// cass //
 ///////////////
 
 type (
-	cassandra struct {
+	cass struct {
 		session *gocql.Session
 		props   connectionProps
 	}
@@ -27,8 +28,9 @@ type (
 	}
 )
 
-func New(keyspace string, nodeIps []string, username, password string) *cassandra {
-	return &cassandra{
+// New creates a new cassandra client instance
+func New(keyspace string, nodeIps []string, username, password string) repo.Repo {
+	return &cass{
 		props: connectionProps{
 			keySpace: keyspace,
 			nodeIps:  nodeIps,
@@ -38,7 +40,7 @@ func New(keyspace string, nodeIps []string, username, password string) *cassandr
 	}
 }
 
-func (c *cassandra) Start() error {
+func (c *cass) Start() error {
 	cluster := gocql.NewCluster(c.props.nodeIps...)
 	cluster.Keyspace = c.props.keySpace
 	cluster.Consistency = gocql.Quorum
@@ -56,11 +58,11 @@ func (c *cassandra) Start() error {
 	return nil
 }
 
-func (c *cassandra) Shutdown() {
+func (c *cass) Shutdown() {
 	c.session.Close()
 }
 
-func (c *cassandra) Transaction() (repo.Tx, error) {
+func (c *cass) Transaction() (repo.Tx, error) {
 	return newTx(c)
 }
 
@@ -69,17 +71,19 @@ func (c *cassandra) Transaction() (repo.Tx, error) {
 /////////////////
 
 type (
+	// Tx is a transaction containing a cassandra session
 	Tx struct {
 		S *gocql.Session
 	}
 )
 
-func newTx(c *cassandra) (*Tx, error) {
+func newTx(c *cass) (*Tx, error) {
 	return &Tx{
 		S: c.session,
 	}, nil
 }
 
+// Adapter returns the unique string identifier of the transaction type
 func (t *Tx) Adapter() string {
-	return AdapterId
+	return AdapterID
 }

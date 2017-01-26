@@ -3,14 +3,15 @@ package user
 import (
 	"errors"
 	"github.com/Hackform/Eiffel/service/repo/cassandra"
+	"github.com/Hackform/Eiffel/service/util/upsilon"
 )
 
 const (
-	table_name = "users"
+	tableName = "users"
 )
 
 func cassCreate(t *cassandra.Tx) error {
-	if err := t.S.Query(cassandra.BuilderTable(table_name, cassandra.Fields{
+	if err := t.S.Query(cassandra.BuilderTable(tableName, cassandra.Fields{
 		"id":           "uuid",
 		"email":        "varchar",
 		"username":     "varchar",
@@ -28,8 +29,8 @@ func cassCreate(t *cassandra.Tx) error {
 	return nil
 }
 
-func cassSelect(t *cassandra.Tx) (*UserModel, error) {
-	k := UserModel{}
+func cassSelect(t *cassandra.Tx, u *upsilon.Upsilon) (*Model, error) {
+	k := Model{}
 	// if err := t.S.Query(`SELECT name, setup_complete, version FROM eiffel_setup WHERE eiffel_name = ? LIMIT 1`,
 	// 	setup_name).Scan(&k.Name, &k.Setup, &k.Version); err != nil {
 	// 	return nil, errors.New("Unable to get setup table")
@@ -37,7 +38,7 @@ func cassSelect(t *cassandra.Tx) (*UserModel, error) {
 	return &k, nil
 }
 
-func cassInsert(t *cassandra.Tx, u *UserModel) error {
+func cassInsert(t *cassandra.Tx, u *Model) error {
 	// if err := t.S.Query(`INSERT INTO eiffel_setup (name, setup_complete, version) VALUES (?, ?, ?)`,
 	// 	setup_name, true, setup_version).Exec(); err != nil {
 	// 	return errors.New("Unable to insert setup complete")
