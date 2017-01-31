@@ -4,10 +4,12 @@ import (
 	"errors"
 	"github.com/Hackform/Eiffel/service/repo/cassandra"
 	"github.com/Hackform/Eiffel/service/util/upsilon"
+	"github.com/gocql/gocql"
 )
 
 const (
-	tableName = "users"
+	tableName    = "users"
+	tableNameMap = "users_usernames_idx"
 )
 
 func cassCreate(t *cassandra.Tx) error {
@@ -26,15 +28,32 @@ func cassCreate(t *cassandra.Tx) error {
 	}, []string{"id"}, nil)).RetryPolicy(nil).Exec(); err != nil {
 		return errors.New("Unable to create table users")
 	}
+
+	if err := t.S.Query(cassandra.BuilderTable(tableNameMap, cassandra.Fields{
+		"id":       "uuid",
+		"username": "varchar",
+	}, []string{"username"}, nil)).RetryPolicy(nil).Exec(); err != nil {
+		return errors.New("Unable to create table users_usernames_idx")
+	}
+
 	return nil
 }
 
 func cassSelect(t *cassandra.Tx, u *upsilon.Upsilon) (*Model, error) {
+	gocqlid, err := gocql.UUIDFromBytes(u.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
 	k := Model{}
-	// if err := t.S.Query(`SELECT name, setup_complete, version FROM eiffel_setup WHERE eiffel_name = ? LIMIT 1`,
-	// 	setup_name).Scan(&k.Name, &k.Setup, &k.Version); err != nil {
-	// 	return nil, errors.New("Unable to get setup table")
-	// }
+	var id gocql.UUID
+	if err := t.S.Query(`SELECT id, email, username, auth_level, auth_tags, first_name, last_name, date, pass_hash, pass_salt, pass_version FROM users WHERE id = ? LIMIT 1`,
+		gocqlid).Scan(&id, &k.Email, &k.Username, &k.auth.Level, &k.auth.Tags, &k.name.First, &k.name.Last, &k.Date, &k.passhash.Hash, &k.passhash.Salt, &k.passhash.Version); err != nil {
+		return nil, errors.New("Unable to get setup table")
+	}
+
+	// convert gocql uuid to upsilon
+
 	return &k, nil
 }
 

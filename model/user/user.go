@@ -7,7 +7,6 @@ import (
 	"github.com/Hackform/Eiffel/service/util/eta"
 	"github.com/Hackform/Eiffel/service/util/rho"
 	"github.com/Hackform/Eiffel/service/util/upsilon"
-	"github.com/gocql/gocql"
 	"time"
 )
 
@@ -19,8 +18,14 @@ type (
 		passhash
 	}
 
+	// UnameMap maps a username to a user ID
+	UnameMap struct {
+		uname
+		userID
+	}
+
 	userID struct {
-		ID gocql.UUID `json:"id" cql:"id"`
+		ID *upsilon.Upsilon `json:"id" cql:"id"`
 	}
 
 	userInfo struct {
@@ -69,13 +74,21 @@ func NewModel() *Model {
 	return &Model{}
 }
 
+// NewUnameMap creates a new Username map to user ID
+func NewUnameMap(username string, id *upsilon.Upsilon) (*UnameMap, error) {
+	return &UnameMap{
+		userID: userID{
+			ID: id,
+		},
+		uname: uname{
+			Username: username,
+		},
+	}, nil
+}
+
 // New creates a new Model from arguments
 func New(username, password, email, firstName, lastName string, authLevel uint8) (*Model, error) {
 	id, err := upsilon.New(8, 0, 8)
-	if err != nil {
-		return nil, err
-	}
-	uid, err := gocql.UUIDFromBytes(id.Bytes())
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +99,7 @@ func New(username, password, email, firstName, lastName string, authLevel uint8)
 	}
 	return &Model{
 		userID: userID{
-			ID: uid,
+			ID: id,
 		},
 		userInfo: userInfo{
 			em: em{

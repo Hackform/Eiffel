@@ -16,7 +16,7 @@ func Test_Upsilon(t *testing.T) {
 	assert.Equal(u.size, 12, "Upsilon byte array should only contain time and random")
 	u, err = New(8, 4, 4, []byte{1, 2, 3, 4, 5})
 	assert.Nil(err, "All input is valid")
-	assert.Equal([]byte{2, 3, 4, 5}, u.h, "Only the last bytes of the input are used for the hash byte array")
+	assert.Equal([]byte{2, 3, 4, 5}, u.Hash(), "Only the last bytes of the input are used for the hash byte array")
 	u, err = New(8, 4, 4, []byte{1, 2})
-	assert.Equal([]byte{0, 0, 1, 2}, u.h, "The hash byte array should right align the byte input")
+	assert.Equal([]byte{0, 0, 1, 2}, u.Hash(), "The hash byte array should right align the byte input")
 }

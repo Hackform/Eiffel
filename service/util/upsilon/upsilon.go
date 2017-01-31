@@ -20,7 +20,7 @@ type (
 		hashbits,
 		randbits,
 		size int
-		t, h, r, u []byte
+		u []byte
 	}
 )
 
@@ -70,9 +70,6 @@ func New(timeSize, hashSize, randomSize int, input ...[]byte) (returnUpsilon *Up
 		hashbits: hashSize,
 		randbits: randomSize,
 		size:     timeSize + hashSize + randomSize,
-		t:        t,
-		h:        h,
-		r:        r,
 		u:        k.Bytes(),
 	}, nil
 }
@@ -84,17 +81,17 @@ func (u *Upsilon) Bytes() []byte {
 
 // Time returns only the time bytes of an Upsilon
 func (u *Upsilon) Time() []byte {
-	return u.t
+	return u.u[:u.timebits]
 }
 
 // Hash returns only the hash initialization bytes of an Upsilon
 func (u *Upsilon) Hash() []byte {
-	return u.h
+	return u.u[u.timebits : u.timebits+u.hashbits]
 }
 
 // Rand returns only the random bytes of an Upsilon
 func (u *Upsilon) Rand() []byte {
-	return u.r
+	return u.u[u.timebits+u.hashbits:]
 }
 
 // Base64 returns the full raw bytes of an Upsilon encoded in standard padded base64
@@ -104,15 +101,15 @@ func (u *Upsilon) Base64() string {
 
 // TimeBase64 returns only the time bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) TimeBase64() string {
-	return base64.StdEncoding.EncodeToString(u.t)
+	return base64.StdEncoding.EncodeToString(u.Time())
 }
 
 // HashBase64 returns only the hash initialization bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) HashBase64() string {
-	return base64.StdEncoding.EncodeToString(u.h)
+	return base64.StdEncoding.EncodeToString(u.Hash())
 }
 
 // RandBase64 returns only the random bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) RandBase64() string {
-	return base64.StdEncoding.EncodeToString(u.r)
+	return base64.StdEncoding.EncodeToString(u.Rand())
 }
