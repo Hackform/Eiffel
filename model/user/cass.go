@@ -64,10 +64,13 @@ func cassSelect(t *cassandra.Tx, u *upsilon.Upsilon) (*Model, error) {
 
 	k := Model{}
 	var id gocql.UUID
-	if err := t.S.Query(cassQueryByIDString, gocqlid).Scan(&id, &k.Email, &k.Username, &k.auth.Level, &k.auth.Tags, &k.name.First, &k.name.Last, &k.Date, &k.passhash.Hash, &k.passhash.Salt, &k.passhash.Version); err != nil {
+	if err = t.S.Query(cassQueryByIDString, gocqlid).Scan(&id, &k.Email, &k.Username, &k.auth.Level, &k.auth.Tags, &k.name.First, &k.name.Last, &k.Date, &k.passhash.Hash, &k.passhash.Salt, &k.passhash.Version); err != nil {
 		return nil, err
 	}
-	k.ID = upsilon.FromBytes(modelIDTimeBits, modelIDHashBits, modelIDRandBits, id.Bytes())
+	k.ID, err = upsilon.FromBytes(modelIDTimeBits, modelIDHashBits, modelIDRandBits, id.Bytes())
+	if err != nil {
+		return nil, err
+	}
 
 	return &k, nil
 }
@@ -80,7 +83,10 @@ func cassSelectByUsername(t *cassandra.Tx, username string) (*Model, error) {
 		return nil, err
 	}
 
-	k := upsilon.FromBytes(modelIDTimeBits, modelIDHashBits, modelIDRandBits, id.Bytes())
+	k, err := upsilon.FromBytes(modelIDTimeBits, modelIDHashBits, modelIDRandBits, id.Bytes())
+	if err != nil {
+		return nil, err
+	}
 
 	return cassSelect(t, k)
 }

@@ -1,6 +1,7 @@
 package setuproute
 
 import (
+	"fmt"
 	"github.com/Hackform/Eiffel"
 	"github.com/Hackform/Eiffel/model/setup"
 	"github.com/Hackform/Eiffel/model/user"
@@ -16,8 +17,8 @@ type (
 	}
 
 	reqSetup struct {
-		username,
-		password string
+		Username string `json:"username"`
+		Password string `json:"password"`
 	}
 
 	resSetup struct {
@@ -26,8 +27,8 @@ type (
 )
 
 const (
-	usernameLength = 1
-	passwordLength = 8
+	minUsernameLength = 1
+	minPasswordLength = 8
 )
 
 var (
@@ -59,7 +60,7 @@ func (r *setuproute) Register(g *echo.Group) {
 		// acquire transaction
 		var tx repo.Tx
 		if tx, err = r.repo.Transaction(); err != nil {
-			log.Errorf("transaction: %s", err)
+			log.Errorf("Transaction: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed setup process: transaction",
 			})
@@ -83,20 +84,20 @@ func (r *setuproute) Register(g *echo.Group) {
 				Message: "Failed to provide valid setup config",
 			})
 		}
-		if len(req.username) < usernameLength {
+		if len(req.Username) < minUsernameLength {
 			return c.JSON(http.StatusBadRequest, resSetup{
 				Message: "No username provided",
 			})
 		}
-		if len(req.password) < passwordLength {
+		if len(req.Password) < minPasswordLength {
 			return c.JSON(http.StatusBadRequest, resSetup{
-				Message: "Min password length 8",
+				Message: fmt.Sprintf("Min password length %d", minPasswordLength),
 			})
 		}
 
 		// create user
 		var newUser *user.Model
-		if newUser, err = user.NewSuperUser(req.username, req.password); err != nil {
+		if newUser, err = user.NewSuperUser(req.Username, req.Password); err != nil {
 			log.Errorf("Create new user: %s", err)
 			return c.JSON(http.StatusInternalServerError, resSetup{
 				Message: "Failed to create new user",

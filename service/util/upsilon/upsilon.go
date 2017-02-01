@@ -75,14 +75,29 @@ func New(timeSize, hashSize, randomSize int, input ...[]byte) (returnUpsilon *Up
 }
 
 // FromBytes creates a new Upsilon from an existing byte slice
-func FromBytes(timeSize, hashSize, randomSize int, b []byte) *Upsilon {
+func FromBytes(timeSize, hashSize, randomSize int, b []byte) (*Upsilon, error) {
+	size := timeSize + hashSize + randomSize
+	if len(b) != size {
+		return nil, errors.New("byte slice length does not match defined sizes")
+	}
+
 	return &Upsilon{
 		timebits: timeSize,
 		hashbits: hashSize,
 		randbits: randomSize,
-		size:     timeSize + hashSize + randomSize,
+		size:     size,
 		u:        b,
+	}, nil
+}
+
+// FromBase64 creates a new Upsilon from a base64 encoded string
+func FromBase64(timeSize, hashSize, randomSize int, ustring string) (*Upsilon, error) {
+	b, err := base64.URLEncoding.DecodeString(ustring)
+	if err != nil {
+		return nil, err
 	}
+
+	return FromBytes(timeSize, hashSize, randomSize, b)
 }
 
 // Bytes returns the full raw bytes of an Upsilon
@@ -107,20 +122,20 @@ func (u *Upsilon) Rand() []byte {
 
 // Base64 returns the full raw bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) Base64() string {
-	return base64.StdEncoding.EncodeToString(u.u)
+	return base64.URLEncoding.EncodeToString(u.u)
 }
 
 // TimeBase64 returns only the time bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) TimeBase64() string {
-	return base64.StdEncoding.EncodeToString(u.Time())
+	return base64.URLEncoding.EncodeToString(u.Time())
 }
 
 // HashBase64 returns only the hash initialization bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) HashBase64() string {
-	return base64.StdEncoding.EncodeToString(u.Hash())
+	return base64.URLEncoding.EncodeToString(u.Hash())
 }
 
 // RandBase64 returns only the random bytes of an Upsilon encoded in standard padded base64
 func (u *Upsilon) RandBase64() string {
-	return base64.StdEncoding.EncodeToString(u.Rand())
+	return base64.URLEncoding.EncodeToString(u.Rand())
 }

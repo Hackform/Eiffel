@@ -30,6 +30,18 @@ type (
 		userID
 	}
 
+	// ModelPublic defines the public properties of a user
+	ModelPublic struct {
+		ID string `json:"id"`
+		userInfoPub
+	}
+
+	// ModelPrivate defines the public and private properties of a user
+	ModelPrivate struct {
+		ID string `json:"id"`
+		userInfo
+	}
+
 	userID struct {
 		ID *upsilon.Upsilon `json:"id" cql:"id"`
 	}
@@ -151,6 +163,22 @@ func NewSuperUser(username, password string) (*Model, error) {
 	return New(username, password, "", "", "", rho.SuperUser())
 }
 
+// GetPublic returns the portion of the Model that is public
+func (m *Model) GetPublic() *ModelPublic {
+	return &ModelPublic{
+		m.ID.Base64(),
+		m.userInfoPub,
+	}
+}
+
+// GetPrivate returns the portion of the Model that is public and private
+func (m *Model) GetPrivate() *ModelPrivate {
+	return &ModelPrivate{
+		m.ID.Base64(),
+		m.userInfo,
+	}
+}
+
 // Create creates a new User Table on the cassandra cluster
 func Create(t repo.Tx) error {
 	switch t.Adapter() {
@@ -162,10 +190,25 @@ func Create(t repo.Tx) error {
 }
 
 // Select finds a given User based on ID
-func Select(t repo.Tx, u *upsilon.Upsilon) (*Model, error) {
+func Select(t repo.Tx, userid string) (*Model, error) {
+	u, err := upsilon.FromBase64(modelIDTimeBits, modelIDHashBits, modelIDRandBits, userid)
+	if err != nil {
+		return nil, err
+	}
+
 	switch t.Adapter() {
 	case cassandra.AdapterID:
 		return cassSelect(t.(*cassandra.Tx), u)
+	default:
+		return nil, errors.New("Repo adapter not found")
+	}
+}
+
+// SelectByUsername finds a given User based on username
+func SelectByUsername(t repo.Tx, username string) (*Model, error) {
+	switch t.Adapter() {
+	case cassandra.AdapterID:
+		return cassSelectByUsername(t.(*cassandra.Tx), username)
 	default:
 		return nil, errors.New("Repo adapter not found")
 	}
