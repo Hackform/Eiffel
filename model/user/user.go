@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+const (
+	modelIDTimeBits = 8
+	modelIDHashBits = 0
+	modelIDRandBits = 8
+)
+
 type (
 	// Model defines a user
 	Model struct {
@@ -88,7 +94,7 @@ func NewUnameMap(username string, id *upsilon.Upsilon) (*UnameMap, error) {
 
 // New creates a new Model from arguments
 func New(username, password, email, firstName, lastName string, authLevel uint8) (*Model, error) {
-	id, err := upsilon.New(8, 0, 8)
+	id, err := upsilon.New(modelIDTimeBits, modelIDHashBits, modelIDRandBits)
 	if err != nil {
 		return nil, err
 	}

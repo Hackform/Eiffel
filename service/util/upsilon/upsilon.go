@@ -74,6 +74,17 @@ func New(timeSize, hashSize, randomSize int, input ...[]byte) (returnUpsilon *Up
 	}, nil
 }
 
+// FromBytes creates a new Upsilon from an existing byte slice
+func FromBytes(timeSize, hashSize, randomSize int, b []byte) *Upsilon {
+	return &Upsilon{
+		timebits: timeSize,
+		hashbits: hashSize,
+		randbits: randomSize,
+		size:     timeSize + hashSize + randomSize,
+		u:        b,
+	}
+}
+
 // Bytes returns the full raw bytes of an Upsilon
 func (u *Upsilon) Bytes() []byte {
 	return u.u
