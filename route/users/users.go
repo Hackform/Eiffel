@@ -128,6 +128,7 @@ func (r *userroute) Register(g *echo.Group) {
 			Data: *usermodel.GetPublic(),
 		})
 	})
+
 	g.GET("/id/:userid/private", func(c echo.Context) error {
 		userid := c.Param("userid")
 
@@ -152,7 +153,8 @@ func (r *userroute) Register(g *echo.Group) {
 			Data: *usermodel.GetPrivate(),
 		})
 	}) // TODO: get jwt middleware
-	g.POST("/", func(c echo.Context) error {
+
+	g.POST("/:code", func(c echo.Context) error {
 		return c.String(http.StatusOK, fmt.Sprintf("POST /users"))
 	})
 }
