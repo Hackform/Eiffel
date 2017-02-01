@@ -17,11 +17,17 @@ func New() eiffel.Route {
 }
 
 func (r *userroute) Register(g *echo.Group) {
-	g.GET("/:username", func(c echo.Context) error {
-		return c.String(http.StatusOK, fmt.Sprintf("GET /users/%s", c.Param("username")))
+	g.GET("/u/:username", func(c echo.Context) error {
+		return c.String(http.StatusOK, fmt.Sprintf("GET /users/u/%s", c.Param("username")))
 	})
-	g.GET("/:username/private", func(c echo.Context) error {
-		return c.String(http.StatusOK, fmt.Sprintf("GET /users/%s/private", c.Param("username")))
+	g.GET("/u/:username/private", func(c echo.Context) error {
+		return c.String(http.StatusOK, fmt.Sprintf("GET /users/u/%s/private", c.Param("username")))
+	})
+	g.GET("/id/:userid", func(c echo.Context) error {
+		return c.String(http.StatusOK, fmt.Sprintf("GET /users/id/%s", c.Param("userid")))
+	})
+	g.GET("/id/:userid/private", func(c echo.Context) error {
+		return c.String(http.StatusOK, fmt.Sprintf("GET /users/id/%s/private", c.Param("userid")))
 	})
 	g.POST("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, fmt.Sprintf("POST /users"))

@@ -33,7 +33,7 @@ func (e *Eiffel) Start(url string) {
 			fmt.Println(err)
 			return
 		}
-		e.servicesActive = n
+		e.servicesActive = n + 1
 	}
 	fmt.Println(`
 
@@ -75,13 +75,14 @@ func (e *Eiffel) Start(url string) {
 	e.server.Logger.Fatal(e.server.Start(url))
 }
 
+// Shutdown kills the server and kills any other running resources
 func (e *Eiffel) Shutdown() {
 	if e.serverRunning {
 		e.server.Shutdown(5 * time.Second)
 		e.serverRunning = false
 	}
 	for n, i := range e.serviceList {
-		if n > e.servicesActive {
+		if n >= e.servicesActive {
 			e.servicesActive = 0
 			break
 		}
@@ -94,19 +95,20 @@ func (e *Eiffel) Shutdown() {
 ///////////////
 
 type (
+	// Service is an injectable interface for services
 	Service interface {
 		Start() error
 		Shutdown()
 	}
 
+	// ServiceConfig is a map to simplify service initialization
 	ServiceConfig map[string]Service
 )
 
-func (e *Eiffel) InitService(s ServiceConfig) {
-	for k, v := range s {
-		e.serviceList = append(e.serviceList, k)
-		e.services[k] = v
-	}
+// InitService initializes Eiffel with the provided services
+func (e *Eiffel) InitService(s ServiceConfig, order []string) {
+	e.serviceList = order
+	e.services = s
 }
 
 ////////////
@@ -114,13 +116,16 @@ func (e *Eiffel) InitService(s ServiceConfig) {
 ////////////
 
 type (
+	// Route is an injectable interface for routes
 	Route interface {
 		Register(g *echo.Group)
 	}
 
+	// RouteConfig is a map to simplify route initialization
 	RouteConfig map[string]Route
 )
 
+// InitRoute initializes Eiffel with the provided routes and middleware
 func (e *Eiffel) InitRoute(prefix string, r RouteConfig, m ...echo.MiddlewareFunc) {
 	group := e.server.Group(prefix)
 	for _, m := range m {

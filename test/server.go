@@ -15,7 +15,7 @@ func main() {
 
 	e.InitService(eiffel.ServiceConfig{
 		"repo": r,
-	})
+	}, []string{"repo"})
 
 	e.InitRoute(
 		"/api",
