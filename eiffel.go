@@ -36,7 +36,7 @@ func New() *Eiffel {
 	lg.RedirectStdlogOutput(logger)
 	lg.DefaultLogger = logger
 
-	logger.WithFields(logrus.Fields{
+	lg.WithFields(logrus.Fields{
 		"module": "eiffel",
 	}).Info("Initializing gateway")
 
@@ -110,7 +110,7 @@ func (e *Eiffel) Start(url string, shutdownDelay int) {
 
 // Shutdown kills the server and kills any other running resources
 func (e *Eiffel) Shutdown() {
-	e.logger.WithFields(logrus.Fields{
+	lg.WithFields(logrus.Fields{
 		"module": "eiffel",
 	}).Info("Server shutting down")
 
@@ -155,7 +155,6 @@ func (e *Eiffel) InitService(s ServiceConfig, order []string) {
 type (
 	// Route is an injectable interface for routes
 	Route interface {
-		SetLogger(*logrus.Logger)
 		Register(g chi.Router)
 	}
 
@@ -171,7 +170,6 @@ func (e *Eiffel) InitRoute(prefix string, routeConfig RouteConfig, m ...func(htt
 	r.Use(middleware.DefaultCompress)
 	r.Use(m...)
 	for k, v := range routeConfig {
-		v.SetLogger(e.logger)
 		r.Route(k, v.Register)
 	}
 	e.server.Mount(prefix, r)

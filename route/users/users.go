@@ -1,12 +1,16 @@
 package userroute
 
 import (
+	"context"
 	"fmt"
 	"github.com/Hackform/Eiffel"
 	"github.com/Hackform/Eiffel/model/user"
 	"github.com/Hackform/Eiffel/service/repo"
-	"github.com/Sirupsen/logrus"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/render"
+	"github.com/pressly/lg"
 	"net/http"
+	"regexp"
 )
 
 type (
@@ -27,83 +31,90 @@ type (
 	}
 )
 
-const (
-	minUsernameLength = 1
-)
-
-var (
-	log = logrus.WithFields(logrus.Fields{
-		"module": "users router",
-	})
-)
-
 // New creates a user router
-func New() eiffel.Route {
-	return &userroute{}
+func New(repository repo.Repo) eiffel.Route {
+	return &userroute{
+		repo: repository,
+	}
 }
 
-func (r *userroute) Register(g *echo.Group) {
-	g.GET("/u/:username", func(c echo.Context) error {
-		username := c.Param("username")
-		if len(username) < minUsernameLength {
-			return c.JSON(http.StatusBadRequest, resUsersErr{
-				Message: "No username provided",
-			})
-		}
+var (
+	regexUsername = regexp.MustCompile(`[a-zA-Z0-9_]{1,32}`)
+)
 
-		var tx repo.Tx
-		var err error
-		if tx, err = r.repo.Transaction(); err != nil {
-			log.Errorf("transaction: %s", err)
-			return c.JSON(http.StatusInternalServerError, resUsersErr{
-				Message: "Failed transaction",
-			})
-		}
+func isValidUsername(username string) bool {
+	return regexUsername.MatchString(username)
+}
 
-		usermodel, err := user.SelectByUsername(tx, username)
-		if err != nil {
-			log.Warnf("Select user by username: %s", err)
-			return c.JSON(http.StatusNotFound, resUsersErr{
-				Message: "Failed to find user",
-			})
-		}
+type (
+	contextKey string
+)
 
-		return c.JSON(http.StatusOK, resUsersPublic{
-			Data: *usermodel.GetPublic(),
+const (
+	ctxKeyUsermodel = contextKey("usermodel")
+)
+
+func (rr *userroute) Register(r chi.Router) {
+	r.Route("/u/:username", func(r chi.Router) {
+		r.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				username := chi.URLParam(r, "username")
+
+				if !isValidUsername(username) {
+					render.Status(r, http.StatusBadRequest)
+					render.JSON(w, r, resUsersErr{
+						Message: "Username must be between 1 and 32 characters",
+					})
+					return
+				}
+
+				tx, err := rr.repo.Transaction()
+				if err != nil {
+					lg.RequestLog(r).WithError(err).Error("Failed to acquire transaction")
+					render.Status(r, http.StatusInternalServerError)
+					render.JSON(w, r, resUsersErr{
+						Message: "Failed transaction",
+					})
+					return
+				}
+
+				usermodel, err := user.SelectByUsername(tx, username)
+				if err != nil {
+					lg.RequestLog(r).WithError(err).Warn("User not found")
+					render.Status(r, http.StatusNotFound)
+					render.JSON(w, r, resUsersErr{
+						Message: "User not found",
+					})
+					return
+				}
+
+				ctx := context.WithValue(r.Context(), ctxKeyUsermodel, usermodel)
+				next.ServeHTTP(w, r.WithContext(ctx))
+			})
+		})
+
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			// TODO: status logs
+			usermodel := r.Context().Value(ctxKeyUsermodel).(*user.Model)
+			render.Status(r, http.StatusNotFound)
+			render.JSON(w, r, resUsersPublic{
+				Data: *usermodel.GetPublic(),
+			})
+			return
+		})
+
+		r.Get("/private", func(w http.ResponseWriter, r *http.Request) {
+			// TODO: protect jwt
+			usermodel := r.Context().Value(ctxKeyUsermodel).(*user.Model)
+			render.Status(r, http.StatusNotFound)
+			render.JSON(w, r, resUsersPrivate{
+				Data: *usermodel.GetPrivate(),
+			})
+			return
 		})
 	})
 
-	g.GET("/u/:username/private", func(c echo.Context) error {
-		username := c.Param("username")
-		if len(username) < minUsernameLength {
-			return c.JSON(http.StatusBadRequest, resUsersErr{
-				Message: "No username provided",
-			})
-		}
-
-		var tx repo.Tx
-		var err error
-		if tx, err = r.repo.Transaction(); err != nil {
-			log.Errorf("transaction: %s", err)
-			return c.JSON(http.StatusInternalServerError, resUsersErr{
-				Message: "Failed transaction",
-			})
-		}
-
-		usermodel, err := user.SelectByUsername(tx, username)
-		if err != nil {
-			log.Warnf("Select user by username: %s", err)
-			return c.JSON(http.StatusNotFound, resUsersErr{
-				Message: "Failed to find user",
-			})
-		}
-
-		return c.JSON(http.StatusOK, resUsersPrivate{
-			Data: *usermodel.GetPrivate(),
-		})
-	}) // TODO: get jwt middleware
-
-	g.GET("/id/:userid", func(c echo.Context) error {
+	r.Get("/id/:userid", func(c echo.Context) error {
 		userid := c.Param("userid")
 
 		var tx repo.Tx
