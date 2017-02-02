@@ -6,8 +6,7 @@ import (
 	"github.com/Hackform/Eiffel/model/setup"
 	"github.com/Hackform/Eiffel/model/user"
 	"github.com/Hackform/Eiffel/service/repo"
-	"github.com/labstack/echo"
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"net/http"
 )
 

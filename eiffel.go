@@ -1,32 +1,57 @@
 package eiffel
 
 import (
+	"context"
 	"fmt"
-	"github.com/labstack/echo"
+	"github.com/Sirupsen/logrus"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
+	"github.com/pressly/lg"
+	"net/http"
 	"time"
 )
 
+const (
+	eiffelVersion = "v0.1.0"
+)
+
 type (
+	// Eiffel is a service Gateway for Hackform
 	Eiffel struct {
 		services       ServiceConfig
 		serviceList    []string
 		servicesActive int
-		server         *echo.Echo
+		server         *chi.Mux
 		serverRunning  bool
+		logger         *logrus.Logger
 	}
 )
 
+// New creates a new Eiffel
 func New() *Eiffel {
+	logger := logrus.New()
+	// TODO: allow output and type to be configured
+	// logger.Formatter = &logrus.JSONFormatter{}
+
+	lg.RedirectStdlogOutput(logger)
+	lg.DefaultLogger = logger
+
+	logger.WithFields(logrus.Fields{
+		"module": "eiffel",
+	}).Info("Initializing gateway")
+
 	return &Eiffel{
 		services:       ServiceConfig{},
 		serviceList:    []string{},
 		servicesActive: 0,
-		server:         echo.New(),
+		server:         chi.NewRouter(),
 		serverRunning:  false,
+		logger:         logger,
 	}
 }
 
-func (e *Eiffel) Start(url string) {
+// Start starts all the services and the server
+func (e *Eiffel) Start(url string, shutdownDelay int) {
 	defer e.Shutdown()
 	for n, i := range e.serviceList {
 		if err := e.services[i].Start(); err != nil {
@@ -35,6 +60,7 @@ func (e *Eiffel) Start(url string) {
 		}
 		e.servicesActive = n + 1
 	}
+
 	fmt.Println(`
 
                     |
@@ -71,14 +97,25 @@ func (e *Eiffel) Start(url string) {
      ||___ || ||    ||    ||___ ||__|
 
     `)
+
+	lg.Log(lg.WithLoggerContext(context.Background(), e.logger)).WithFields(logrus.Fields{
+		"module":  "eiffel",
+		"version": eiffelVersion,
+	}).Infof("Server started on %s", url)
+
 	e.serverRunning = true
-	e.server.Logger.Fatal(e.server.Start(url))
+	// TODO: gracefully shutdown
+	http.ListenAndServe(url, e.server)
 }
 
 // Shutdown kills the server and kills any other running resources
 func (e *Eiffel) Shutdown() {
+	e.logger.WithFields(logrus.Fields{
+		"module": "eiffel",
+	}).Info("Server shutting down")
+
 	if e.serverRunning {
-		e.server.Shutdown(5 * time.Second)
+		// TODO: graceful shutdown
 		e.serverRunning = false
 	}
 	for n, i := range e.serviceList {
@@ -118,7 +155,8 @@ func (e *Eiffel) InitService(s ServiceConfig, order []string) {
 type (
 	// Route is an injectable interface for routes
 	Route interface {
-		Register(g *echo.Group)
+		SetLogger(*logrus.Logger)
+		Register(g chi.Router)
 	}
 
 	// RouteConfig is a map to simplify route initialization
@@ -126,13 +164,15 @@ type (
 )
 
 // InitRoute initializes Eiffel with the provided routes and middleware
-func (e *Eiffel) InitRoute(prefix string, r RouteConfig, m ...echo.MiddlewareFunc) {
-	group := e.server.Group(prefix)
-	for _, m := range m {
-		group.Use(m)
+func (e *Eiffel) InitRoute(prefix string, routeConfig RouteConfig, m ...func(http.Handler) http.Handler) {
+	r := chi.NewRouter()
+	r.Use(middleware.StripSlashes)
+	r.Use(middleware.RequestID, middleware.RealIP, lg.RequestLogger(e.logger), middleware.CloseNotify, middleware.Timeout(30*time.Second))
+	r.Use(middleware.DefaultCompress)
+	r.Use(m...)
+	for k, v := range routeConfig {
+		v.SetLogger(e.logger)
+		r.Route(k, v.Register)
 	}
-	for k, v := range r {
-		g := group.Group(k)
-		v.Register(g)
-	}
+	e.server.Mount(prefix, r)
 }

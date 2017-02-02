@@ -1,9 +1,12 @@
 package: github.com/Hackform/Eiffel
 import:
-- package: github.com/labstack/echo
-  version: ^3.0.3
 - package: github.com/stretchr/testify
   version: ^1.1.4
 - package: github.com/gocql/gocql
-- package: github.com/sirupsen/logrus
+- package: github.com/pressly/chi
+  version: ^2.0.0
+  subpackages:
+  - middleware
+- package: github.com/pressly/lg
+- package: github.com/Sirupsen/logrus
   version: ^0.11.0

@@ -1,8 +1,6 @@
-hash: 4a9ff5678e2924eda06b471d0a01ff201d5adbfd43a561c064fb878116c5a067
-updated: 2017-01-31T14:13:17.119294027-08:00
+hash: 7bbf8b37ee312ec3c080a923fb59ac1fa763d66e2bae49aadd2a89aba56a446e
+updated: 2017-02-01T17:36:29.317885812-08:00
 imports:
-- name: github.com/dgrijalva/jwt-go
-  version: a601269ab70c205d26370c16f7c81e9017c14e04
 - name: github.com/gocql/gocql
   version: b6e5fc4b08a956657367e1ab9eb38e65a6ab6abe
   subpackages:
@@ -13,45 +11,27 @@ imports:
   version: 7db9049039a047d955fe8c19b83c8ff5abd765c7
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
-- name: github.com/labstack/echo
-  version: 8d504c1b699c757b267255c53b3e5219f9974abc
+- name: github.com/pressly/chi
+  version: 54f435d539226571eab1987ed862b1c0fdfdc892
   subpackages:
   - middleware
-- name: github.com/labstack/gommon
-  version: f72d3c883f8ea180da8f085dd320804c41332ad1
-  subpackages:
-  - bytes
-  - color
-  - log
-  - random
-- name: github.com/mattn/go-colorable
-  version: d228849504861217f796da67fae4f6e347643f15
-- name: github.com/mattn/go-isatty
-  version: 30a891c33c7cde7b02a981314b4228ec99380cca
-- name: github.com/sirupsen/logrus
+- name: github.com/pressly/lg
+  version: 3313039b167049c8140757cd233e322447ddf65d
+- name: github.com/Sirupsen/logrus
   version: d26492970760ca5d33129d2d799e34be5c4782eb
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:
   - assert
-- name: github.com/tylerb/graceful
-  version: 0e9129e9c6d47da90dc0c188b26bd7bb1dab53cd
-- name: github.com/valyala/bytebufferpool
-  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
-- name: github.com/valyala/fasttemplate
-  version: d090d65668a286d9a180d43a19dfdc5dcad8fe88
 - name: golang.org/x/crypto
   version: b8a2a83acfe6e6770b75de42d5ff4c67596675c0
   subpackages:
-  - acme
-  - acme/autocert
   - pbkdf2
   - scrypt
 - name: golang.org/x/net
   version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
   subpackages:
   - context
-  - context/ctxhttp
 - name: golang.org/x/sys
   version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
