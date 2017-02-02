@@ -6,8 +6,11 @@ import (
 	"github.com/Hackform/Eiffel/model/setup"
 	"github.com/Hackform/Eiffel/model/user"
 	"github.com/Hackform/Eiffel/service/repo"
-	"github.com/Sirupsen/logrus"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/render"
+	"github.com/pressly/lg"
 	"net/http"
+	"regexp"
 )
 
 type (
@@ -26,17 +29,25 @@ type (
 )
 
 const (
-	minUsernameLength = 1
 	minPasswordLength = 8
+	maxPasswordLength = 128
 )
 
 var (
 	setupComplete = false
-
-	log = logrus.WithFields(logrus.Fields{
-		"module": "setup router",
-	})
 )
+
+var (
+	regexUsername = regexp.MustCompile(`^[a-zA-Z0-9_\-]{1,32}$`)
+)
+
+func isValidUsername(username string) bool {
+	return regexUsername.MatchString(username)
+}
+func isValidPassword(password string) bool {
+	l := len(password)
+	return l >= minPasswordLength && l <= maxPasswordLength
+}
 
 // New creates a new setup router
 func New(repo repo.Repo) eiffel.Route {
@@ -45,103 +56,115 @@ func New(repo repo.Repo) eiffel.Route {
 	}
 }
 
-func (r *setuproute) Register(g *echo.Group) {
-	g.POST("/", func(c echo.Context) error {
+func (rr *setuproute) Register(r chi.Router) {
+	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		// check if setup already cached and completed
 		if setupComplete {
-			return c.JSON(http.StatusGone, resSetup{
+			render.Status(r, http.StatusGone)
+			render.JSON(w, r, resSetup{
 				Message: "Setup already complete",
 			})
+			return
 		}
-
-		var err error
-
 		// acquire transaction
-		var tx repo.Tx
-		if tx, err = r.repo.Transaction(); err != nil {
-			log.Errorf("Transaction: %s", err)
-			return c.JSON(http.StatusInternalServerError, resSetup{
+		tx, err := rr.repo.Transaction()
+		if err != nil {
+			lg.RequestLog(r).WithError(err).Error("Failed to acquire transaction")
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, resSetup{
 				Message: "Failed setup process: transaction",
 			})
+			return
 		}
-
 		// attempt to select setup
-		var k *setup.Model
-		if k, err = setup.Select(tx); err == nil && k.Setup {
+		k, err := setup.Select(tx)
+		if err == nil && k.Setup {
 			setupComplete = true
-			return c.JSON(http.StatusGone, resSetup{
+			render.Status(r, http.StatusGone)
+			render.JSON(w, r, resSetup{
 				Message: "Setup already complete",
 			})
+			return
 		}
-
-		log.Info("Begin setup process")
-
+		lg.WithField("module", "setuproute").Info("Begin setup process")
 		// check request validity
 		req := &reqSetup{}
-		if err = c.Bind(req); err != nil {
-			return c.JSON(http.StatusBadRequest, resSetup{
+		if err = render.Bind(r.Body, req); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, resSetup{
 				Message: "Failed to provide valid setup config",
 			})
+			return
 		}
-		if len(req.Username) < minUsernameLength {
-			return c.JSON(http.StatusBadRequest, resSetup{
-				Message: "No username provided",
+		if !isValidUsername(req.Username) {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, resSetup{
+				Message: "Username must be between 1 and 32 characters and only be composed of a-z, A-Z, 0-9, _, -",
 			})
+			return
 		}
-		if len(req.Password) < minPasswordLength {
-			return c.JSON(http.StatusBadRequest, resSetup{
-				Message: fmt.Sprintf("Min password length %d", minPasswordLength),
+		if !isValidPassword(req.Password) {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, resSetup{
+				Message: fmt.Sprintf("Password must be between %d and %d characters", minPasswordLength, maxPasswordLength),
 			})
+			return
 		}
-
 		// create user
-		var newUser *user.Model
-		if newUser, err = user.NewSuperUser(req.Username, req.Password); err != nil {
-			log.Errorf("Create new user: %s", err)
-			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed to create new user",
+		newUser, err := user.NewSuperUser(req.Username, req.Password)
+		if err != nil {
+			lg.RequestLog(r).WithError(err).Error("Failed to initialize a new user")
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, resSetup{
+				Message: "Failed to initialize a new user",
 			})
+			return
 		}
-		log.Info("Begin database initialization")
-
+		lg.Info("Begin database initialization")
 		// create setup table
 		if err = setup.Create(tx); err != nil {
-			log.Errorf("Create setup table: %s", err)
-			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed setup process: create setup table",
+			lg.RequestLog(r).WithError(err).Error("Failed to create setup table")
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, resSetup{
+				Message: "Failed to create setup table",
 			})
+			return
 		}
-		log.Info("Setup table created")
-
+		lg.Info("Setup table created")
 		// create user table
 		if err = user.Create(tx); err != nil {
-			log.Errorf("Create user table: %s", err)
-			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed setup process: create user table",
+			lg.RequestLog(r).WithError(err).Error("Failed to create user table")
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, resSetup{
+				Message: "Failed to create user table",
 			})
+			return
 		}
-		log.Info("User table created")
-
+		lg.Info("User table created")
 		// insert new user
 		if err = user.Insert(tx, newUser); err != nil {
-			log.Errorf("Insert new user: %s", err)
-			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed setup process: insert new user",
+			lg.RequestLog(r).WithError(err).Error("Failed to insert superuser")
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, resSetup{
+				Message: "Failed to insert superuser",
 			})
+			return
 		}
-		log.Infof("New superuser %s inserted", newUser.Username)
-
+		lg.Infof("New superuser %s inserted", newUser.Username)
 		// insert setup table complete
 		if err = setup.Insert(tx); err != nil {
-			log.Errorf("Insert setup complete: %s", err)
-			return c.JSON(http.StatusInternalServerError, resSetup{
-				Message: "Failed setup process: insert setup complete",
+			lg.RequestLog(r).WithError(err).Error("Failed to insert setup config")
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, resSetup{
+				Message: "Failed to insert setup config",
 			})
+			return
 		}
-		log.Info("Setup complete")
-
-		return c.JSON(http.StatusOK, resSetup{
+		lg.Info("Setup complete")
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, resSetup{
 			Message: "Setup complete",
 		})
+		return
 	})
 }
