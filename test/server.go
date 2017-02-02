@@ -19,12 +19,10 @@ func main() {
 	e.InitRoute(
 		"/api",
 		eiffel.RouteConfig{
-			"/users": userroute.New(),
+			"/users": userroute.New(r),
 			"/setup": setuproute.New(r),
 		},
-		middleware.Recover(),
-		middleware.Logger(),
 	)
 
-	e.Start(":8080")
+	e.Start(":8080", 30)
 }

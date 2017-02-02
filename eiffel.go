@@ -51,7 +51,7 @@ func New() *Eiffel {
 }
 
 // Start starts all the services and the server
-func (e *Eiffel) Start(url string, shutdownDelay int) {
+func (e *Eiffel) Start(url string, shutdownDelay uint) {
 	defer e.Shutdown()
 	for n, i := range e.serviceList {
 		if err := e.services[i].Start(); err != nil {
