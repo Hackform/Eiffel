@@ -2,11 +2,11 @@ package user
 
 import (
 	"errors"
-	"github.com/Hackform/Eiffel/service/repo"
-	"github.com/Hackform/Eiffel/service/repo/cassandra"
-	"github.com/Hackform/Eiffel/service/util/eta"
-	"github.com/Hackform/Eiffel/service/util/rho"
-	"github.com/Hackform/Eiffel/service/util/upsilon"
+	"github.com/hackform/eiffel/service/repo"
+	"github.com/hackform/eiffel/service/repo/cassandra"
+	"github.com/hackform/eiffel/service/util/eta"
+	"github.com/hackform/eiffel/service/util/rho"
+	"github.com/hackform/eiffel/service/util/upsilon"
 	"time"
 )
 

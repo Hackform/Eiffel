@@ -1,8 +1,8 @@
 package cassandra
 
 import (
-	"github.com/Hackform/Eiffel/service/repo"
 	"github.com/gocql/gocql"
+	"github.com/hackform/eiffel/service/repo"
 )
 
 const (

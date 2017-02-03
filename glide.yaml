@@ -1,7 +1,9 @@
-package: github.com/Hackform/Eiffel
+package: github.com/hackform/eiffel
 import:
 - package: github.com/stretchr/testify
   version: ^1.1.4
+  subpackages:
+  - assert
 - package: github.com/gocql/gocql
 - package: github.com/pressly/chi
   version: ^2.0.0
@@ -11,3 +13,5 @@ import:
 - package: github.com/pressly/lg
 - package: github.com/Sirupsen/logrus
   version: ^0.11.0
+- package: golang.org/x/crypto
+- package: golang.org/x/net

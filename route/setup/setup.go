@@ -2,10 +2,10 @@ package setuproute
 
 import (
 	"fmt"
-	"github.com/Hackform/Eiffel"
-	"github.com/Hackform/Eiffel/model/setup"
-	"github.com/Hackform/Eiffel/model/user"
-	"github.com/Hackform/Eiffel/service/repo"
+	"github.com/hackform/eiffel"
+	"github.com/hackform/eiffel/model/setup"
+	"github.com/hackform/eiffel/model/user"
+	"github.com/hackform/eiffel/service/repo"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/render"
 	"github.com/pressly/lg"

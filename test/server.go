@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/Hackform/Eiffel"
-	"github.com/Hackform/Eiffel/route/setup"
-	"github.com/Hackform/Eiffel/route/users"
-	"github.com/Hackform/Eiffel/service/repo/cassandra"
+	"github.com/hackform/eiffel"
+	"github.com/hackform/eiffel/route/setup"
+	"github.com/hackform/eiffel/route/users"
+	"github.com/hackform/eiffel/service/repo/cassandra"
 )
 
 func main() {

@@ -1,8 +1,8 @@
 package cassandra
 
 import (
-	"github.com/Hackform/Eiffel"
-	"github.com/Hackform/Eiffel/service/repo"
+	"github.com/hackform/eiffel"
+	"github.com/hackform/eiffel/service/repo"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

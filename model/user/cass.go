@@ -2,9 +2,9 @@ package user
 
 import (
 	"errors"
-	"github.com/Hackform/Eiffel/service/repo/cassandra"
-	"github.com/Hackform/Eiffel/service/util/upsilon"
 	"github.com/gocql/gocql"
+	"github.com/hackform/eiffel/service/repo/cassandra"
+	"github.com/hackform/eiffel/service/util/upsilon"
 	"strings"
 )
 

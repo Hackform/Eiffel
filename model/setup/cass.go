@@ -2,7 +2,7 @@ package setup
 
 import (
 	"errors"
-	"github.com/Hackform/Eiffel/service/repo/cassandra"
+	"github.com/hackform/eiffel/service/repo/cassandra"
 )
 
 const (

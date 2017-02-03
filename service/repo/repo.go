@@ -1,7 +1,5 @@
 package repo
 
-import ()
-
 type (
 	// Repo is a repository service interface
 	Repo interface {
