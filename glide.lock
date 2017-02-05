@@ -1,5 +1,5 @@
-hash: e21126d57abc3cc025cb5818377e0694ee4998c6404a140d156c4a504ca20efd
-updated: 2017-02-03T00:14:07.616857107-08:00
+hash: ae45351d15d612b180287afad1b6f3f42abf798cfdfc4f7a80a1a2fbad809e9e
+updated: 2017-02-05T02:51:58.752800648-08:00
 imports:
 - name: github.com/gocql/gocql
   version: b6e5fc4b08a956657367e1ab9eb38e65a6ab6abe
@@ -39,6 +39,8 @@ imports:
   - unix
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+- name: gopkg.in/redis.v5
+  version: 9cd49656897843b8f2bf3d9639230cb7aec90d6c
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
