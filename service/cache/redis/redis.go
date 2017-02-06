@@ -10,6 +10,10 @@ const (
 	AdapterID = "redis"
 )
 
+///////////
+// Redis //
+///////////
+
 type (
 	red struct {
 		client *goredis.ClusterClient
@@ -37,7 +41,7 @@ func (r *red) Start() error {
 		Addrs:    r.props.nodeIps,
 		Password: r.props.password,
 	})
-	if err := client.Ping().Err(); err != nil {
+	if _, err := client.Ping().Result(); err != nil {
 		return err
 	}
 	r.client = client
@@ -50,4 +54,26 @@ func (r *red) Shutdown() {
 
 func (r *red) Transaction() (cache.Tx, error) {
 	return nil, nil
+}
+
+/////////////////
+// Transaction //
+/////////////////
+
+type (
+	// Tx is a transaction containing a cassandra session
+	Tx struct {
+		S *goredis.ClusterClient
+	}
+)
+
+func newTx(r *red) (*Tx, error) {
+	return &Tx{
+		S: r.client,
+	}, nil
+}
+
+// Adapter returns the unique string identifier of the transaction type
+func (t *Tx) Adapter() string {
+	return AdapterID
 }
